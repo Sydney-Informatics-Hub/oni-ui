@@ -266,14 +266,14 @@
   "api": {
     "bootstrap": false,
     "log": {
-      "logFolder": "/opt/storage/oni/logs"
+      "logFolder": "./oni-storage/logs"
     },
     "host": "http://localhost:8080",
     "ocfl": {
-      "ocflPath": "/opt/storage/oni/ocfl",
-      "ocflScratch": "/opt/storage/oni/scratch-ocfl",
-      "ocflTestPath": "/opt/storage/oni/test/ocfl",
-      "ocflTestScratch": "/opt/storage/oni/test/scratch-ocfl",
+      "ocflPath": "./oni-storage/ocfl",
+      "ocflScratch": "./oni-storage/scratch-ocfl",
+      "ocflTestPath": "./oni-storage/test/ocfl",
+      "ocflTestScratch": "./oni-storage/test/scratch-ocfl",
       "catalogFilename": "ro-crate-metadata.json",
       "hashAlgorithm": "md5",
       "create": {
