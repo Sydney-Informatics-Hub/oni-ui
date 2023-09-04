@@ -1,0 +1,87 @@
+{
+  "@context": [
+    "https://w3id.org/ro/crate/1.1/context",
+    {
+      "@vocab": "http://schema.org/"
+    },
+    {
+      "@id": "@id"
+    },
+    {
+      "hasCollectionProtocol": "http://schema.org/hasCollectionProtocol"
+    },
+    {
+      "size": "https://purl.archive.org/language-data-commons/terms#size",
+      "modality": "https://purl.archive.org/language-data-commons/terms#modality"
+    },
+    {
+      "Geometry": "http://www.opengis.net/ont/geosparql#Geometry",
+      "asWKT": "http://www.opengis.net/ont/geosparql#asWKT"
+    }
+  ],
+  "@graph": [
+    {
+      "@id": "ro-crate-metadata.json",
+      "@type": "CreativeWork",
+      "identifier": "ro-crate-metadata.json",
+      "about": {
+        "@id": "arcp://name,testing-crate-o"
+      }
+    },
+    {
+      "@id": "arcp://name,testing-crate-o",
+      "@type": [
+        "Dataset",
+        "RepositoryCollection"
+      ],
+      "name": "Test crate for Heurist integration",
+      "author": {
+        "@id": "#Test crate for Heurist integration-author-1"
+      },
+      "description": "A test crate for oni",
+      "hasMember": [ {
+        "@id": "#Test crate for Heurist integration-hasPart-1"
+      } ],
+      "hasPart": [],
+      "temporalCoverage": "2023-2024",
+      "citation": {
+        "@id": "https://doi.org/foo-bar"
+      },
+      "conformsTo": {
+        "@id": "https://purl.archive.org/language-data-commons/profile#Collection"
+      }
+    },
+    {
+      "@id": "#Test crate for Heurist integration-author-1",
+      "@type": "Person",
+      "name": "Mike Lynch",
+      "description": "Mike Lynch"
+    },
+    {
+      "@id": "#Test crate for Heurist integration-hasPart-1",
+      "@type": [ "RepositoryObject" ],
+      "conformsTo": {
+        "@id": "https://purl.archive.org/language-data-commons/profile#Object"
+      },
+      "name": "Subset1",
+      "description": "A subdirectory with a mention of pigeons in the description",
+      "hasPart": {
+        "@id": "#whoopwhoop"
+      }
+    },
+    {
+      "@id": "#whoopwhoop",
+      "@type": "Place",
+      "name": "Whoop Whoop",
+      "geo": {
+        "@id": "#Whoop Whoop-geo-1"
+      }
+    },
+    {
+      "@id": "#Whoop Whoop-geo-1",
+      "@type": "Geometry",
+      "name": "Whoop Whoop-geo-1",
+      "asWKT": "POINT (144.21683380720748 -29.91387643831764)"
+    }
+  ]
+}

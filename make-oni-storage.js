@@ -11,7 +11,7 @@ const config = {
 	layout: 'PathDirectStorageLayout'
 };
 
-const object_dir = './inbox/test-oni';
+const object_dir = './samples/test-oni';
 
 let storage;
 
