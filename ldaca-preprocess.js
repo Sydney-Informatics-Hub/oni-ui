@@ -4,6 +4,12 @@ const {ROCrate} = require('ro-crate');
 const fs = require('fs-extra');
 const yargs = require('yargs/yargs');
 
+const LDACA_PROFILE = {
+	RepositoryCollection: "https://purl.archive.org/language-data-commons/profile#Collection",
+	RepositoryObject: "https://purl.archive.org/language-data-commons/profile#Object"
+}
+
+
 async function load_raw_crate(dir) {
 	try {
 		const crateJson = await fs.readJson(dir + '/ro-crate-metadata.json');
@@ -27,28 +33,21 @@ async function write_cooked_crate(crate, dir) {
 }
 
 
-// use crate.addValues here
-
-function add_type(entity, newtype) {
-	const type = entity['@type'];
-	if( Array.isArray(type) ) {
-		if( !entity['@type'].includes(newtype) ) {
-			entity['@type'].push(newtype);
-		}
-	} else {
-		if( entity['@type'] !== newtype ) {
-			entity['@type'] = [ entity['@type'], newtype ];
-		}
-	} 
+function add_ldaca_type(crate, entity, ldaca_type) {
+	crate.addValues(entity, "@type", ldaca_type);
+	crate.addValues(entity, 'conformsTo', { '@id': LDACA_PROFILE[ldaca_type] });
 }
 
+
 // filter all of the graph by a function, and make matching
-// nodes a RepositoryObject, adding memberOf relations to their parent
+// nodes a RepositoryObject, adding memberOf relations to the root
+
+// 
 
 function make_repository_object(crate, fn) {
 	crate.graph.filter((entity) => {
 		if( fn(entity) ) {
-			add_type(entity, "RepositoryObject");
+			add_ldaca_type(crate, entity, "RepositoryObject");
 			//const parent = get_parent(crate, entity);
 			crate.addValues(crate.rootDataset, 'hasMember', { '@id': entity['@id'] });
 		}
@@ -69,7 +68,8 @@ function make_repository_object(crate, fn) {
 
 	const arcp_id = `arcp://name,${args.n}`; // normalise name
 	root['@id'] = arcp_id;
-	add_type(root, "RepositoryCollection");
+
+	add_ldaca_type(crate, root, "RepositoryCollection");
 
 	make_repository_object(crate, (e) => {
 		return e['@id'].substr(0, 4) === '#rec';
