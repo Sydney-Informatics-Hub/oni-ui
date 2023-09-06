@@ -27,6 +27,8 @@ async function write_cooked_crate(crate, dir) {
 }
 
 
+// use crate.addValues here
+
 function add_type(entity, newtype) {
 	const type = entity['@type'];
 	if( Array.isArray(type) ) {
@@ -40,11 +42,15 @@ function add_type(entity, newtype) {
 	} 
 }
 
+// filter all of the graph by a function, and make matching
+// nodes a RepositoryObject, adding memberOf relations to their parent
 
-function add_ldaca_type(crate, fn, type) {
+function make_repository_object(crate, fn) {
 	crate.graph.filter((entity) => {
 		if( fn(entity) ) {
-			add_type(entity, type)
+			add_type(entity, "RepositoryObject");
+			//const parent = get_parent(crate, entity);
+			crate.addValues(crate.rootDataset, 'hasMember', { '@id': entity['@id'] });
 		}
 	});
 }
@@ -64,6 +70,10 @@ function add_ldaca_type(crate, fn, type) {
 	const arcp_id = `arcp://name,${args.n}`; // normalise name
 	root['@id'] = arcp_id;
 	add_type(root, "RepositoryCollection");
+
+	make_repository_object(crate, (e) => {
+		return e['@id'].substr(0, 4) === '#rec';
+	});
 
 	await write_cooked_crate(crate, args.o);
 
