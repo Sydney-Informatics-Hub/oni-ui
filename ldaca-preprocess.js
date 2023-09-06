@@ -27,9 +27,26 @@ async function write_cooked_crate(crate, dir) {
 }
 
 
+function add_type(entity, newtype) {
+	const type = entity['@type'];
+	if( Array.isArray(type) ) {
+		if( !entity['@type'].includes(newtype) ) {
+			entity['@type'].push(newtype);
+		}
+	} else {
+		if( entity['@type'] !== newtype ) {
+			entity['@type'] = [ entity['@type'], newtype ];
+		}
+	} 
+}
 
-function add_repo_objects(crate, types) {
 
+function add_ldaca_type(crate, fn, type) {
+	crate.graph.filter((entity) => {
+		if( fn(entity) ) {
+			add_type(entity, type)
+		}
+	});
 }
 
 
@@ -46,6 +63,7 @@ function add_repo_objects(crate, types) {
 
 	const arcp_id = `arcp://name,${args.n}`; // normalise name
 	root['@id'] = arcp_id;
+	add_type(root, "RepositoryCollection");
 
 	await write_cooked_crate(crate, args.o);
 
