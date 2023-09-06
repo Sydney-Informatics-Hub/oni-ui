@@ -16,8 +16,21 @@ async function load_raw_crate(dir) {
 	}
 }
 
+async function write_cooked_crate(crate, dir) {
+	try {
+		await fs.writeFile(dir + '/ro-crate-metadata.json', JSON.stringify(crate, null, 2));
+	} catch(error) {
+		console.error(`Error writing ${dir}/ro-crate-metadata.json`);
+		console.error(error);
+		return false;
+	}
+}
 
 
+
+function add_repo_objects(crate, types) {
+
+}
 
 
 
@@ -25,11 +38,16 @@ async function load_raw_crate(dir) {
 
 	const args = yargs(process.argv.slice(2))
 		.usage('Usage: $0 -i [indir] -o [outdir]')
-		.demandOption(['i', 'o'])
+		.demandOption(['i', 'o', 'n'])
 		.argv;
 	
-	const raw_crate = await load_raw_crate(args.i);
+	const crate = await load_raw_crate(args.i);
+	const root = crate.rootDataset;
 
-	console.log(raw_crate);
+	const arcp_id = `arcp://name,${args.n}`; // normalise name
+	root['@id'] = arcp_id;
+
+	await write_cooked_crate(crate, args.o);
+
 
 })();
