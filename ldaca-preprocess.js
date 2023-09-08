@@ -39,19 +39,37 @@ function add_ldaca_type(crate, entity, ldaca_type) {
 }
 
 
-// filter all of the graph by a function, and make matching
-// nodes a RepositoryObject, adding memberOf relations to the root
 
-// 
-
-function make_repository_object(crate, fn) {
-	crate.graph.filter((entity) => {
-		if( fn(entity) ) {
-			add_ldaca_type(crate, entity, "RepositoryObject");
-			//const parent = get_parent(crate, entity);
-			crate.addValues(crate.rootDataset, 'hasMember', { '@id': entity['@id'] });
+function get_parent(crate, entity) {
+	const eid = entity['@id'];
+	const parents = crate.graph.filter((e) => {
+		const parts = crate.getProperty(e, 'hasPart');
+		if( parts ) {
+			const of_e = parts.filter((p) => p['@id'] === eid);
+			return of_e.length > 0;
 		}
+		return false;
 	});
+	if( parents.length > 1 ) {
+		console.log(`entity with more than one parent: ${eid}`);
+	}
+	if( parents < 1 ) {
+		console.log(`entity ${eid} has no parents`);
+		return null;
+	}
+	return parents[0];
+}
+
+
+// add RepositoryObject type / conformance to an entity, and add a 
+// 'hasMember' link coming from its parent
+
+function make_repository_object(crate, entity) {
+	add_ldaca_type(crate, entity, "RepositoryObject");
+	const parent = get_parent(crate, entity);
+	if( parent ) {
+		crate.addValues(parent, 'hasMember', { '@id': entity['@id'] });
+	}
 }
 
 
@@ -59,7 +77,7 @@ function make_repository_object(crate, fn) {
 (async () => {
 
 	const args = yargs(process.argv.slice(2))
-		.usage('Usage: $0 -i [indir] -o [outdir]')
+		.usage('Usage: $0 -i [indir] -o [outdir] -n [name]')
 		.demandOption(['i', 'o', 'n'])
 		.argv;
 	
@@ -71,8 +89,9 @@ function make_repository_object(crate, fn) {
 
 	add_ldaca_type(crate, root, "RepositoryCollection");
 
-	make_repository_object(crate, (e) => {
-		return e['@id'].substr(0, 4) === '#rec';
+	crate.graph.filter((e) => e['@id'].substr(0, 4) === '#rec').map((e) => {
+		make_repository_object(crate, e);
+		e["name"] = e["nameOrTitle"];
 	});
 
 	await write_cooked_crate(crate, args.o);
