@@ -3,15 +3,18 @@
 const ocfl = require('@ocfl/ocfl-fs');
 const {ROCrate} = require('ro-crate');
 const fs = require('fs-extra');
+const yargs = require('yargs/yargs');
+
 
 const oni_config = require('./configuration.json');
+
 
 const config = {
 	root: oni_config.api.ocfl.ocflPath,
 	layout: 'PathDirectStorageLayout'
 };
 
-const object_dir = './samples/test-oni';
+const object_dir = './samples/heurist-cooked';
 
 let storage;
 
@@ -36,24 +39,34 @@ async function get_arcp_path(dir) {
 
 (async () => {
 
-	const object_name = await get_arcp_path(object_dir);
+	const args = yargs(process.argv.slice(2))
+		.usage('Usage: $0 -i [indir]')
+		.demandOption(['i'])
+		.argv;
+
+
+	const object_name = await get_arcp_path(args.i);
 
 	if( object_name ) {
+
 		try {
 			storage = await ocfl.createStorage(config);
-			console.log(`created storage ${config.root}`);
+			console.log(`Created ocfl storage ${config.root}`);
 		} catch(error) {
 			try {
 				storage = await ocfl.loadStorage(config);
-			console.log(`loaded storage ${config.root}`);
+			console.log(`Connected to ocfl storage ${config.root}`);
 			} catch(error) {
 				console.error(`invalid storage root`);
 			}
 		}
 
 		const o = storage.object(object_name);
+		console.log(`Importing ro-crate from ${args.i}`);
 		console.log(`importing ${object_dir}`);
 		await o.import(object_dir);
-		console.log(`Imported crate as ${object_name}`);
+		console.log(`Imported as ${object_name}`);
+	} else {
+		console.log(`Couldn't import, arcp name identifier not found`);
 	}
 })();
