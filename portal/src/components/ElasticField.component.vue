@@ -7,6 +7,9 @@
       </el-collapse-item>
     </el-collapse>
   </template>
+  <template v-else-if="isGeoLocation">
+    <p>geoLocation?</p>
+  </template>
   <template v-else-if="title === 'base64'">
     <NotebookViewerWidget :ipynb="value"/>
   </template>
@@ -53,6 +56,7 @@ export default {
       value: '',
       byteFields: this.$store.state.configuration.ui?.main?.byteFields || [],
       expand: this.$store.state.configuration.ui?.main?.expand || [],
+      isGeoLocation: false,
       expandField: false,
       hide: false
     }
@@ -62,6 +66,8 @@ export default {
     this.url = this.testURL(this.id);
     this.name = first(this.field?.['name'])?.['@value'] || first(this.field)?.['@value'];
     this.description = first(this.field?.['description'])?.['@value'];
+    console.log(`${this.id} ${this.field?.['@type']}`);
+    this.isGeoLocation = this.field?.['@type'] === 'GeoCoordinates';
     // This only if the value is ever empty, AKA not indexed or resolved
     if (isEmpty(this.name)) {
       this.name = this.id;
