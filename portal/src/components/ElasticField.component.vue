@@ -8,7 +8,7 @@
     </el-collapse>
   </template>
   <template v-else-if="isGeoLocation">
-    <MappableLocation :lat="lat" :long="long"/>
+    <MappableLocation :lat="lat" :long="long" :latlngs="latlngs"/>
   </template>
   <template v-else-if="title === 'base64'">
     <NotebookViewerWidget :ipynb="value"/>
@@ -60,8 +60,9 @@ export default {
       byteFields: this.$store.state.configuration.ui?.main?.byteFields || [],
       expand: this.$store.state.configuration.ui?.main?.expand || [],
       isGeoLocation: false,
-      lat: '',
-      long: '',
+      lat: [],
+      long: [],
+      latlngs: [],
       expandField: false,
       hide: false
     }
@@ -71,11 +72,17 @@ export default {
     this.url = this.testURL(this.id);
     this.name = first(this.field?.['name'])?.['@value'] || first(this.field)?.['@value'];
     this.description = first(this.field?.['description'])?.['@value'];
-    this.isGeoLocation = this.field?.['@type'] === 'GeoCoordinates';
+    this.isGeoLocation = this.title === '_geolocation';
+    // this.field?.['@type'] === 'GeoCoordinates';
     if( this.isGeoLocation ) {
-      this.lat = this.field?.['latitude']
-      this.long = this.field?.['longitude'];
+      console.log(this.title)
+      this.latlngs.push([this.field[0]?.['latitude'],this.field[0]?.['longitude']])
+      this.lat.push(this.field[0]?.['latitude'])
+      this.long.push(this.field[0]?.['longitude']);
     }
+    console.log(this.lat)
+    console.log(this.long)
+    console.log(this.latlngs)
     // This only if the value is ever empty, AKA not indexed or resolved
     if (isEmpty(this.name)) {
       this.name = this.id;
