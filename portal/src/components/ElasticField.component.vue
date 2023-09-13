@@ -76,12 +76,18 @@ export default {
     // this.field?.['@type'] === 'GeoCoordinates';
     if( this.isGeoLocation ) {
       console.log(this.title)
-      this.latlngs.push([this.field[0]?.['latitude'],this.field[0]?.['longitude']])
-      this.lat.push(this.field[0]?.['latitude'])
-      this.long.push(this.field[0]?.['longitude']);
+      console.log(this.field)
+      for (let g of this.field) {
+        console.log(g)
+        console.log(g[0]?.['latitude'])
+        console.log(this.field[g])
+        this.latlngs.push([g[0]?.['latitude'],g[0]?.['longitude']])
+        this.lat.push(g[0]?.['latitude'])
+        this.long.push(g[0]?.['longitude']);
+      }
     }
-    console.log(this.lat)
-    console.log(this.long)
+    // console.log(this.lat)
+    // console.log(this.long)
     console.log(this.latlngs)
     // This only if the value is ever empty, AKA not indexed or resolved
     if (isEmpty(this.name)) {
