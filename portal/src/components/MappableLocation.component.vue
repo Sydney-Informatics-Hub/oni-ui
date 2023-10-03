@@ -1,6 +1,7 @@
 <template>
   <div style="height:300px; width:400px">
     <l-map ref="map" v-model:zoom="zoom" :center="latlngs[0]">
+    <!-- <l-map ref="map" v-model:center="latlngs[0]" :bounds="bounds"> -->
       <l-tile-layer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         layer-type="base"
@@ -18,7 +19,7 @@ import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
 
 
 export default {
-  props: [ 'lat', 'long', 'latlngs'],
+  props: [ 'latlngs'],
   components: {
     LMap,
     LTileLayer,
@@ -26,10 +27,9 @@ export default {
   },
   data() {
     return {
-      zoom: 12,
+      zoom: 5,
       latlngs: this.latlngs,
-      lat: this.lat,
-      long: this.long
+      bounds: {"_southWest":{"lat":-13.8, "lng":84.8},"_northEast":{"lat":10.6,"lng":149}},
     };
   },
 };

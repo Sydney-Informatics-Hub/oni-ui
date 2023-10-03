@@ -8,7 +8,7 @@
     </el-collapse>
   </template>
   <template v-else-if="isGeoLocation">
-    <MappableLocation :lat="lat" :long="long" :latlngs="latlngs"/>
+    <MappableLocation :latlngs="latlngs"/>
   </template>
   <template v-else-if="title === 'base64'">
     <NotebookViewerWidget :ipynb="value"/>
@@ -60,8 +60,6 @@ export default {
       byteFields: this.$store.state.configuration.ui?.main?.byteFields || [],
       expand: this.$store.state.configuration.ui?.main?.expand || [],
       isGeoLocation: false,
-      lat: [],
-      long: [],
       latlngs: [],
       expandField: false,
       hide: false
@@ -75,20 +73,10 @@ export default {
     this.isGeoLocation = this.title === '_geolocation';
     // this.field?.['@type'] === 'GeoCoordinates';
     if( this.isGeoLocation ) {
-      console.log(this.title)
-      console.log(this.field)
       for (let g of this.field) {
-        console.log(g)
-        console.log(g[0]?.['latitude'])
-        console.log(this.field[g])
         this.latlngs.push([g[0]?.['latitude'],g[0]?.['longitude']])
-        this.lat.push(g[0]?.['latitude'])
-        this.long.push(g[0]?.['longitude']);
       }
     }
-    // console.log(this.lat)
-    // console.log(this.long)
-    console.log(this.latlngs)
     // This only if the value is ever empty, AKA not indexed or resolved
     if (isEmpty(this.name)) {
       this.name = this.id;
