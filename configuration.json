@@ -408,7 +408,7 @@
       "indexConfiguration": {
         "mapping": {
           "total_fields": {
-            "limit": 1000
+            "limit": 2000
           }
         },
         "highlight": {
