@@ -34,8 +34,6 @@ async function elastic_query(q) {
 
         if (hits.length === 0) {
             console.log(q, 'not indexed in Elasticsearch.')
-        } else {
-            console.log(q, 'is indexed')
         }
     } catch(error) {
         console.error("Error querying elasticsearch")
@@ -57,7 +55,5 @@ async function elastic_query(q) {
     crate.graph.filter((e) => e['@type'][1] === 'RepositoryObject').map((e) => {
         elastic_query(e['@id'])
     })
-
-
 
 })();
