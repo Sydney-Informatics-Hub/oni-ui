@@ -35,7 +35,7 @@ async function elastic_query(q) {
         if (hits.length === 0) {
             console.log(q, 'not indexed in Elasticsearch.')
         } else {
-            console.log(hits)
+            console.log(q, 'is indexed')
         }
     } catch(error) {
         console.error("Error querying elasticsearch")
@@ -47,27 +47,17 @@ async function elastic_query(q) {
 (async () => {
 
 	const args = yargs(process.argv.slice(2))
-		.usage('Usage: $0 -i [indir] -q [query]')
-		.demandOption(['i', 'q'])
+		.usage('Usage: $0 -i [indir]')
+		.demandOption(['i'])
 		.argv;
 	
 	const crate = await load_crate(args.i);
-	const root = crate.rootDataset;
 
-    const resp = elastic_query(args.q)
+    //Iterate over the RO crate to find every RepositoryObject
+    crate.graph.filter((e) => e['@type'][1] === 'RepositoryObject').map((e) => {
+        elastic_query(e['@id'])
+    })
 
-
-	// const arcp_id = `arcp://name,${args.n}`; // normalise name
-	// root['@id'] = arcp_id;
-
-	// add_ldaca_type(crate, root, "RepositoryCollection");
-
-	// crate.graph.filter((e) => e['@id'].substr(0, 4) === '#rec').map((e) => {
-	// 	make_repository_object(crate, e);
-	// 	e["name"] = e["nameOrTitle"];
-	// });
-
-	// await write_cooked_crate(crate, args.o);
 
 
 })();
