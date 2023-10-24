@@ -19,7 +19,7 @@ How to make an OCFL repository:
 - run `npm install` if you haven't already
 - run `node make-oni-storage.js -i [indir]`, e.g. `node make-oni-storage.js -i samples/heurist-cooked`
 
-You can now continue to set up the Oni UI:
+#### Run Oni:
 
 1. Install docker and docker-compose
 2. Verify your docker-compose points to the right ocfl repository
