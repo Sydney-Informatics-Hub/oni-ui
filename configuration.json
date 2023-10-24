@@ -60,6 +60,10 @@
           "name": "language.name.@value"
         },
         {
+          "display": "Key Periods",
+          "name": "category.name.@value"
+        },
+        {
           "display": "Linguistic Genre",
           "name": "linguisticGenre.name.@value"
         },
