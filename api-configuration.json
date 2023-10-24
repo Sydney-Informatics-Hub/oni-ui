@@ -60,6 +60,10 @@
           "name": "language.name.@value"
         },
         {
+          "display": "Key Periods",
+          "name": "category.name.@value"
+        },
+        {
           "display": "Linguistic Genre",
           "name": "linguisticGenre.name.@value"
         },
@@ -408,7 +412,7 @@
       "indexConfiguration": {
         "mapping": {
           "total_fields": {
-            "limit": 1000
+            "limit": 2000
           }
         },
         "highlight": {
@@ -419,7 +423,11 @@
         "@id",
         "name.@value",
         "description.@value",
-        "_text"
+        "_text",
+        "abstract.@value",
+        "keywords.name.@value",
+        "place.nameOrTitle.@value",
+        "placevenue.nameOrTitle.@value"
       ],
       "aggregations": [
         {
@@ -453,26 +461,32 @@
           "field": "language.name.@value.keyword"
         },
         {
-          "display": "Modality",
+          "display": "Key Period",
           "order": 5,
+          "name": "category.name.@value",
+          "field": "category.name.@value.keyword"
+        },
+        {
+          "display": "Modality",
+          "order": 6,
           "name": "modality.name.@value",
           "field": "modality.name.@value.keyword"
         },
         {
           "display": "Linguistic Genre",
-          "order": 6,
+          "order": 7,
           "name": "linguisticGenre.name.@value",
           "field": "linguisticGenre.name.@value.keyword"
         },
         {
           "display": "File Format",
-          "order": 7,
+          "order": 8,
           "name": "encodingFormat.@value",
           "field": "encodingFormat.@value.keyword"
         },
         {
           "display": "Annotation Type",
-          "order": 8,
+          "order": 9,
           "name": "annotationType.@value",
           "field": "annotationType.@value.keyword"
         }
