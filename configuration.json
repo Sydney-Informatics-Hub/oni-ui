@@ -479,8 +479,8 @@
         "language.alternateName.@value": {"label": "Alternate Language Name", "checked": true},
         "contributor.@value": {"label": "Contributor", "checked": true},
         "creator.@value": {"label": "Creator", "checked": true},
-        "place.nameOrTitle.@value": { "label": "Place", "checked", true },
-        "placevenue.nameOrTitle.@value": { "label": "Place Venue", "checked", true },
+        "place.nameOrTitle.@value": { "label": "Place", "checked": true },
+        "placevenue.nameOrTitle.@value": { "label": "Place Venue", "checked": true },
         "_text": {"label": "Text", "checked": true}
       },
       "aggregations": [
