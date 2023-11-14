@@ -2,10 +2,34 @@
   <span class="p-2">
     <span v-if="noIcon">
       <span class="flex justify-center" v-if="accessIcon === 'public'">
-        <img class="object-fill block" :src="publicCircle" :srcset="publicCircle" :style="{'height': '60px'}"/>
+        <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="You can access this data immediately and by doing so you accept the licence terms specified on the record."
+            placement="bottom"
+        >
+        <img class="object-fill block" :src="publicIcon" :srcset="publicIcon" :style="{'height': '60px'}"/>
+        </el-tooltip>
       </span>
       <span class="flex justify-center" v-if="accessIcon === 'login'">
-        <img class="object-fill block" :src="loginCircle" :srcset="loginCircle" :style="{'height': '60px'}"/>
+        <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="You can access this data after logging in. You may also have to agree to licence terms in an automatic process."
+            placement="bottom"
+        >
+        <img class="object-fill block" :src="loginIcon" :srcset="loginIcon" :style="{'height': '60px'}"/>
+        </el-tooltip>
+      </span>
+      <span class="flex justify-center" v-if="accessIcon === 'loginPlus'">
+        <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="There are restrictions on access to this data. Log in to get further information."
+            placement="bottom"
+        >
+        <img class="object-fill block" :src="loginIconPlus" :srcset="loginIconPlus" :style="{'height': '60px'}"/>
+        </el-tooltip>
       </span>
     </span>
     <span v-else>
@@ -13,7 +37,7 @@
         <el-tooltip
             class="box-item"
             effect="dark"
-            :content="item"
+            :content="`${field?.display}: ${item}`"
             placement="bottom"
         >
         <font-awesome-icon
@@ -26,8 +50,9 @@
   </span>
 </template>
 <script>
-import publicCircle from "@/assets/public.svg";
-import loginCircle from "@/assets/login.svg";
+import publicIcon from "@/assets/access-public.svg";
+import loginIcon from "@/assets/access-login-pass.svg";
+import loginIconPlus from "@/assets/access-login-restricted.svg";
 
 export default {
   props: ['item', 'id', 'field'],
@@ -36,8 +61,9 @@ export default {
       noIcon: false,
       iconType: 'file',
       accessIcon: 'none',
-      publicCircle,
-      loginCircle
+      publicIcon,
+      loginIcon,
+      loginIconPlus
     }
   },
   mounted() {
@@ -73,6 +99,9 @@ export default {
       this.iconType = 'fa-face-kiss';
     } else if (/public/.test(this.item)) {
       this.accessIcon = 'public';
+      this.noIcon = true;
+    } else if (/loginPlus/.test(this.item)) {
+      this.accessIcon = 'loginPlus';
       this.noIcon = true;
     } else if (/login/.test(this.item)) {
       this.accessIcon = 'login';

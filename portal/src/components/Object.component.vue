@@ -1,5 +1,5 @@
 <template>
-  <div class="px-10 pt-10 pb-7 sticky top-0 z-10 bg-white">
+  <div class="px-10 pt-10 pb-7 z-10 bg-white">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium dark:text-white">
       <h5>
         <member-of-link :memberOf="metadata?._memberOf"/>
@@ -81,7 +81,7 @@
   </template>
 </template>
 <script>
-import {first, isUndefined, reject, isEmpty} from "lodash";
+import {first, isUndefined, reject, isEmpty, sortBy} from "lodash";
 import {initSnip, toggleSnip} from "../tools";
 import MetaField from "./MetaField.component.vue";
 import {defineAsyncComponent} from 'vue';
@@ -124,7 +124,7 @@ export default {
       parts: [],
       crateId: '',
       rootId: '',
-      access: [],
+      access: null,
       activePart: null,
       loading: false,
       membersFiltered: {},
@@ -170,7 +170,7 @@ export default {
       this.metadata = metadata?._source;
       //console.log(this.metadata);
       await this.populate();
-      initSnip('#license', '#readMoreLicense');
+      initSnip({selector: '#license', button: '#readMoreLicense'});
       putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
       this.loading = false;
     } catch (e) {
@@ -220,6 +220,7 @@ export default {
         }
         this.meta.push({name: filter, data: this.metadata[filter], help: helper});
       }
+      this.meta = sortBy(this.meta, 'name');
     },
     populateLicense() {
       this.license = first(this.metadata?.license);

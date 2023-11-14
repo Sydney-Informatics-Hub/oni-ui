@@ -1,5 +1,5 @@
 <template>
-  <div class="px-10 pt-10 pb-7 sticky top-0 bg-white z-10">
+  <div class="px-10 pt-10 pb-7 bg-white z-10">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium dark:text-white">
       <h5>
         <member-of-link :memberOf="metadata?._memberOf"/>
@@ -105,7 +105,7 @@
   </el-row>
 </template>
 <script>
-import {first, isUndefined, isEmpty, reject} from "lodash";
+import {first, isUndefined, isEmpty, reject, sortBy} from "lodash";
 import {defineAsyncComponent} from 'vue';
 import MetaField from "./MetaField.component.vue";
 import LicenseCard from "./cards/LicenseCard.component.vue"
@@ -251,6 +251,7 @@ export default {
         }
         this.meta.push({name: filter, data: this.metadata[filter], help: helper});
       }
+      this.meta = sortBy(this.meta, 'name');
     },
     populateLicense() {
       this.license = first(this.metadata?.license);

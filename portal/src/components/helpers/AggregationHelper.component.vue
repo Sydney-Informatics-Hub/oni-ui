@@ -1,17 +1,19 @@
 <template>
-  <template class="w-full" v-for="(b, index) of buckets" :key="b.key+'_'+index">
-<!--    <span v-if="!asIcons">{{ b.display }}:&nbsp;</span>-->
+  <template v-if="buckets.length>0" class="w-full" v-for="(b, index) of buckets" :key="b.key+'_'+index">
     <AggregationAsIcon v-if="asIcons" :item="b.key" :id="id" :field="field"/>
-    <span v-else>{{ b.key }}&nbsp;</span>
+    <span v-else>{{ b.key }}<span v-if="index + 1 < buckets.length">,&nbsp;</span></span>
+  </template>
+  <template class="w-full" v-else>
+    <AggregationAsIcon v-if="asIcons" :item="item" :field="field"/>
   </template>
 </template>
 <script>
 import AggregationAsIcon from "../widgets/AggregationAsIcon.component.vue";
-import {uniqBy} from "lodash";
+import {isUndefined, uniqBy, orderBy} from "lodash";
 
 export default {
   components: {AggregationAsIcon},
-  props: ['aggregations', 'field', 'asIcons', 'id'],
+  props: ['aggregations', 'field', 'asIcons', 'id', 'item'],
   data() {
     return {
       licenses: this.$store.state.configuration.ui?.licenses || []
@@ -35,15 +37,23 @@ export default {
             display: this.field.display
           });
         }
+        const uniqueBuckets = uniqBy(buckets, 'key');
+        const orderedBuckets = orderBy(uniqueBuckets, ['key']);
+        return orderedBuckets;
+      } else {
+        return [];
       }
-      return uniqBy(buckets, 'key');
     }
   },
   methods: {
     findLicense(key) {
       let license = this.licenses.find(l => l.license === key);
       if (license) {
-        return 'login';
+        if (isUndefined(license.access)) {
+          return 'login';
+        } else {
+          return license.access;
+        }
       } else {
         return 'public';
       }

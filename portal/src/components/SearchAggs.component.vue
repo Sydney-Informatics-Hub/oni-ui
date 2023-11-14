@@ -23,7 +23,7 @@
                type="checkbox" :value="ag.key">
         <label class="cursor-pointer form-check-label text-gray-800" :for="aggsName + '_' + ag.key">
           {{ ag.key }} <span
-            class="text-xs rounded-full w-32 h-32 text-white bg-red-600 p-1">{{ ag['doc_count'] }}</span>
+            class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{ ag['doc_count'] }}</span>
         </label>
       </div>
     </li>

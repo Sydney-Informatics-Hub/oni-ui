@@ -1,5 +1,5 @@
 <template>
-  <el-row :offset="1" :gutter="10" :align="'bottom'" class="flex flex-wrap content-around">
+  <el-row :offset="1" :gutter="0" :align="'bottom'" class="flex flex-wrap content-around">
     <el-col :xs="24" class="h-auto">
       <el-row :justify="'center'" :gutter="10" :align="'middle'">
         <label for="searchInput" class="h-14 mx-2 w-full">
@@ -34,7 +34,8 @@
       </el-row>
       <el-row :justify="'center'" :gutter="20" :align="'middle'" class="pt-2">
         <el-button @click="showAdvancedSearch"
-                   class="cursor-pointer">Advanced Search&nbsp;<span class="text-xs text-gray-400 bg-slate-200 shadow rounded-2xl px-2">beta</span>
+                   class="cursor-pointer">Advanced Search&nbsp;<span
+            class="text-xs text-gray-400 bg-slate-200 shadow rounded-2xl px-2">beta</span>
         </el-button>
       </el-row>
     </el-col>
@@ -70,12 +71,14 @@ export default {
     isEmpty,
     async resetBar() {
       this.searchQuery = '';
-      let query = {q: this.searchQuery};
+      let query = {};
       if (this.$route.query.f) {
         console.log(this.$route.query.f);
         query = {...query, f: this.$route.query.f};
       }
-      await this.$router.push({path: 'search', query});
+      if (!isEmpty(query)) {
+        await this.$router.push({path: 'search', query});
+      }
     },
     async searchInputField(e) {
       if (typeof e === 'string') {

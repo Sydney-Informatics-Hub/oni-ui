@@ -1,5 +1,5 @@
 <template>
-  <p id="license" v-if="!hideDescription">{{ first(this.license?.description)?.['@value'] }}</p>
+  <p class="whitespace-pre-wrap" id="license" v-if="!hideDescription">{{ first(this.license?.description)?.['@value'] }}</p>
   <span v-if="!hideDescription" id="readMoreLicense">
     <el-button v-if="!licenseSnipped" class="justify-self-center mt-2" @click="doSnip('#license')">Read more
   </el-button>
@@ -45,7 +45,7 @@ export default {
   },
   updated() {
     if (!this.licenseSnipped) {
-      initSnip('#license', '#readMoreLicense');
+      initSnip({selector: '#license', button: '#readMoreLicense'});
     }
   }
 }

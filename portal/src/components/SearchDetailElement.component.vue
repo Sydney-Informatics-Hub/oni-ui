@@ -4,7 +4,7 @@
       <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="19" :span="20">
         <el-row :align="'middle'">
           <h5 class="text-2xl font-medium dark:text-white">
-            <a :href="href" class="text-blue-600 hover:text-blue-800 visited:text-purple-600 break-all">
+            <a :href="href" class="text-blue-600 hover:text-blue-800 visited:text-purple-600 break-words">
               {{ this.name || this.id }}</a>
           </h5>
         </el-row>
@@ -29,7 +29,7 @@
           <p class="font-normal text-gray-700 dark:text-gray-400 dark:text-white">
             Language:&nbsp;
           </p>
-          <span v-for="l of details?.language">{{first(l?.name)?.['@value']}}&nbsp;</span>
+          <span v-for="l of details?.language">{{ first(l?.name)?.['@value'] }}</span>
           <p>{{ first(details?.language)?.['@value'] }}</p>
         </el-row>
         <el-row :align="'middle'" v-if="Array.isArray(_memberOf) && _memberOf.length > 0" class="">
@@ -69,7 +69,7 @@
           </p>
         </el-row>
         <el-row class="py-4 pr-4" v-if="first(details?.description)">
-          <p>{{ first(details?.description)?.['@value'] }}</p>
+          <p :id="'desc_'+_uuid">{{ first(details?.description)?.['@value'] }}</p>
         </el-row>
         <el-row v-if="types && types.includes('RepositoryCollection')">
           <span v-if="!isEmpty(subCollections)">Collections: {{ subCollections?.total }},&nbsp;</span>
@@ -84,7 +84,7 @@
         <el-row v-if="score" class="pt-2">
           <div>
             <font-awesome-icon icon="fa-solid fa-5x fa-award"/>
-            Search Score: {{ score }}
+            Relevance Score: {{ score }}
           </div>
         </el-row>
         <el-row class="py-2">
@@ -93,40 +93,44 @@
       </el-col>
       <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="5" :span="4" :offset="0">
         <template v-if="types.includes('RepositoryCollection') || types.includes('RepositoryObject')">
-          <el-row :span="24" class="flex justify-center">
-            <AggregationHelper :asIcons="true"
-                               :aggregations="aggregations"
-                               :field="{ 'name': 'license.@id', 'display': 'Access' }"
-                               :id="id"/>
-          </el-row>
-          <el-row :span="24" class="flex justify-center">
-            <AggregationHelper :asIcons="true"
-                               :aggregations="aggregations"
-                               :field="{ 'name': 'encodingFormat.@value', 'display': 'File Formats' }"
-                               :id="id"/>
-          </el-row>
-          <el-row :span="24" class="flex justify-center">
-            <AggregationHelper :asIcons="true"
-                               :aggregations="aggregations"
-                               :field="{ 'name': 'modality.name.@value', 'display': 'Modality' }"
-                               :id="id"/>
+          <el-row :span="24" class="flex justify-center" v-for="agg of aggConfig">
+            <template v-if="agg.icons">
+              <AggregationHelper :asIcons="true"
+                                 :aggregations="aggregations"
+                                 :field="{ 'name': agg.name, 'display': agg.display }"
+                                 :id="id"/>
+            </template>
           </el-row>
         </template>
-        <el-row :span="24" class="flex justify-center" v-else>
-          <AggregationAsIcon class="w-full" :item="findLicense(details.license)"/>
-          <AggregationAsIcon class="w-full" :item="first(details.encodingFormat)?.['@value']"/>
-          <AggregationAsIcon class="w-full" :item="first(first(details.modality)?.['name'])?.['@value']"/>
-        </el-row>
+        <template v-else>
+          <el-row :span="24" class="flex justify-center" v-for="agg of aggConfig">
+            <template v-if="agg.icons">
+              <template v-if="agg.name === 'license.@id'"><!--This is needed because license comes from configuration-->
+                <AggregationHelper :asIcons="true"
+                                   :item="findLicense(details.license)"
+                                   :field="{'display': 'Licence'}"/>
+              </template>
+              <template v-else>
+                <AggregationHelper :asIcons="true"
+                                   :item="getValue(agg.name)"
+                                   :field="{ 'name': agg.name, 'display': agg.display }"
+                                   :id="id"/>
+              </template>
+            </template>
+          </el-row>
+        </template>
       </el-col>
     </el-row>
     <hr class="divide-y divide-gray-500"/>
   </div>
 </template>
 <script>
-import {first, merge, toArray, isEmpty, find} from 'lodash';
+import {first, merge, toArray, isEmpty, find, isUndefined} from 'lodash';
 import SummariesCard from './cards/SummariesCard.component.vue';
 import AggregationHelper from './helpers/AggregationHelper.component.vue';
 import AggregationAsIcon from "./widgets/AggregationAsIcon.component.vue";
+import {initSnip, toggleSnip} from "../tools";
+import {v4 as uuid} from 'uuid';
 
 export default {
   components: {
@@ -147,7 +151,9 @@ export default {
       members: [],
       typeFile: null,
       subCollections: [],
-      licenses: this.$store.state.configuration.ui?.licenses || []
+      licenses: this.$store.state.configuration.ui?.licenses || [],
+      _uuid: uuid(),
+      aggConfig: this.$store.state.configuration.ui.aggregations
     }
   },
   watch: {
@@ -218,6 +224,9 @@ export default {
         this.typeFile = find(buckets, (obj) => obj.key === 'File');
       }
       this.total = this.members?.total;
+      if (!this.descriptionSnipped) {
+        initSnip({selector: '#desc_' + this._uuid, lines: 3});
+      }
       this.loading = false;
     },
     //TODO: refactor this integrate to multi
@@ -241,10 +250,28 @@ export default {
       const key = first(detail)?.['@id'];
       let license = this.licenses.find(l => l.license === key);
       if (license) {
-        return 'login';
+        if (isUndefined(license.access)) {
+          return 'login';
+        } else {
+          return license.access;
+        }
       } else {
         return 'public';
       }
+    },
+    getValue(name) {
+      //this is because this!! value = "first(first(details.modality)?.['name'])?.['@value']"
+      if (name.includes('name')) {
+        let det = /[^.]*/.exec(name)?.[0];
+        return first(first(this.details[det])?.['name'])?.['@value']
+      } else {
+        let det = /[^.]*/.exec(name)?.[0];
+        return first(this.details[det])?.['@value']
+      }
+    },
+    doSnip(selector) {
+      toggleSnip(selector);
+      this.descriptionSnipped = true;
     }
   }
 }

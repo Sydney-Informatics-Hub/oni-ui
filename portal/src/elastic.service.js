@@ -82,7 +82,9 @@ export default class ElasticService {
       if (response.status !== 200) {
         //httpService.checkAuthorised({status: response.status});
         //TODO: Return an exact error from the API.
-        throw new Error('There was an error with your query');
+        const error = await response.json();
+        const msg = 'Query Error: ' + error?.message || 'There was an error with your query'
+        throw new Error(msg);
       } else {
         const results = await response.json();
         //console.log(results);
@@ -176,8 +178,8 @@ export default class ElasticService {
         .numberOfFragments(3)
         .fragmentSize(200)
         .fields(highlightFields)
-        .preTags('<mark class="font-bold">', highlightFields[0])
-        .postTags('</mark>', highlightFields[0])
+        .preTags('<mark class="font-bold">')
+        .postTags('</mark>')
       );
 
     const query = esbQuery.toJSON().query;
@@ -198,6 +200,8 @@ export default class ElasticService {
     const boolQuery = esb.boolQuery();
     if (queries.queryString) {
       boolQuery.must(esb.queryStringQuery(queries.queryString));
+      // boolQuery.must(esb.queryStringQuery(queries.queryString).escape(true));
+      //boolQuery.must(esb.simpleQueryStringQuery(queries.queryString));
     } else {
       //Note: this code below is never used. Delete
       for (let q of queries) {
@@ -309,7 +313,7 @@ export default class ElasticService {
   }
 
   queryString(searchGroup) {
-    let queryString = '';
+    let qS = '';
     searchGroup.forEach((sg, i) => {
       let lastOneSG = false;
       if (i + 1 === searchGroup.length) {
@@ -319,22 +323,22 @@ export default class ElasticService {
         sg.searchInput = '*';
       }
       if (sg.field === 'all_fields') {
-        let qqq = '(';
+        let qqq = '( ';
         Object.keys(this.fields).map((f, index, keys) => {
           let lastOne = false;
           if (index + 1 === keys.length) {
             lastOne = true;
           }
           let qq = '';
-          qq = ` ${f} : ${sg.searchInput} ${!lastOne ? 'OR' : ''} `;
+          qq = String.raw`${f} : ${sg.searchInput} ${!lastOne ? 'OR' : ''} `;
           qqq += qq;
         });
-        queryString += ` ${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
+        qS += String.raw`${qqq} ) ${!lastOneSG ? sg.operation : ''} `;
       } else {
-        queryString += ` ( ${sg.field}: ( ${sg.searchInput} ) ) ${!lastOneSG ? sg.operation : ''}`;
+        qS += String.raw` ( ${sg.field}: ${sg.searchInput} ) ${!lastOneSG ? sg.operation : ''}`;
       }
     });
-    return queryString;
+    return qS;
   }
 }
 

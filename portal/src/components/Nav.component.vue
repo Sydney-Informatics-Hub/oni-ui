@@ -6,7 +6,7 @@
       :default-active="active"
       :router="true"
   >
-    <el-menu-item index="home" :route="topNavHome">
+    <el-menu-item index="home" :route="topNavHome + Date.now()">
       <router-view :key="topNavHome">
         <el-row :gutter="10" class="flex items-center justify-center min-w-md">
           <el-col :span="4">
@@ -48,19 +48,37 @@
       </router-link>
     </el-menu-item>
     <nav-user v-if="isLoginEnabled"/>
-    <el-menu-item index="help" :route="'/help'">
-      <router-link to="/help">
-        <el-row :gutter="10" class="flex items-center justify-center">
-          <el-col :span="24">
-            <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
-              <span>Help</span>
-            </div>
-          </el-col>
-        </el-row>
-      </router-link>
-    </el-menu-item>
+    <el-sub-menu index="help-sub">
+      <template #title class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
+        <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
+          <span>Help</span>
+        </div>
+      </template>
+      <el-menu-item index="help-sub-about" :route="'/about'">
+        <router-link to="/about">
+          About Oni
+        </router-link>
+      </el-menu-item>
+      <el-menu-item index="help-sub-api" :route="'/docs'">
+        <router-link to="/docs">
+          Oni Api docs
+        </router-link>
+      </el-menu-item>
+      <template v-for="helpLink of subHelpLinks">
+        <li class="el-menu-item">
+          <a class="w-full block" :href="helpLink.href" :target="helpLink.target">
+            {{ helpLink.name }}
+          </a>
+        </li>
+      </template>
+    </el-sub-menu>
   </el-menu>
 </template>
+<style>
+.el-menu-item a {
+  display: block;
+}
+</style>
 <script>
 
 import {
@@ -83,8 +101,9 @@ export default {
       showLogo: this.$store.state.configuration.ui?.showLogo,
       showNotebooks: this.$store.state.configuration.ui?.showNotebooks,
       navHeight: this.$store.state.configuration.ui?.navHeight || '50px',
-      topNavHome: this.$store.state.configuration.ui?.topNavHome || '/search',
+      topNavHome: this.$store.state.configuration.ui?.topNavHome || '/search?s=',
       topNavItems: this.$store.state.configuration.ui?.topNavItems || [],
+      subHelpLinks: this.$store.state.configuration.ui?.subHelpLinks || [],
       logo,
       active: '',
       populate: null,

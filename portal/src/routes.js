@@ -6,7 +6,7 @@ import SearchComponent from "@/components/Search.component.vue";
 import CollectionComponent from "@/components/Collection.component.vue";
 import ObjectComponent from "@/components/Object.component.vue";
 import ObjectOpenComponent from "@/components/ObjectOpen.component.vue";
-import HelpComponent from "@/components/Help.component.vue";
+import AboutComponent from "@/components/About.component.vue";
 import TermsComponent from "@/components/Terms.component.vue";
 import PrivacyComponent from "@/components/Privacy.component.vue";
 import ApiDocsComponent from "@/components/ApiDocsComponent.component.vue";
@@ -45,9 +45,9 @@ const routes = [
       name: "open",
       component: ObjectOpenComponent // Why doesnt it work as a children of object... i dont know!
     }, {
-      path: "help",
-      name: "help",
-      component: HelpComponent
+      path: "about",
+      name: "about",
+      component: AboutComponent
     }, {
       path: "terms",
       name: "terms",

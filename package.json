@@ -1,6 +1,6 @@
 {
   "name": "oni-ui",
-  "version": "1.6.4",
+  "version": "1.6.6",
   "description": "Scripts to create structural and elastic indexes for an Oni",
   "main": "structural-index.js",
   "scripts": {
