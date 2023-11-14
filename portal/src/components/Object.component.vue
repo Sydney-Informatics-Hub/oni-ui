@@ -167,8 +167,8 @@ export default {
       } else if (_id && _id !== 'undefined') {
         metadata = await this.$elasticService.single({_id});
       }
+
       this.metadata = metadata?._source;
-      //console.log(this.metadata);
       await this.populate();
       initSnip({selector: '#license', button: '#readMoreLicense'});
       putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});

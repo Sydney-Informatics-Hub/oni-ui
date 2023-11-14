@@ -5,30 +5,16 @@
     "publicPath": "http://localhost:11000/",
     "title": "Oni Discovery Portal",
     "shortTitle": "Oni",
-    "splashText": "Oni acknowledges all Aboriginal and Torres Strait Islander Traditional Custodians of Country and recognises their continuing connection to land, sea, culture and community. We pay our respects to Elders past and present.",
-    "splashTextClass": "text-5xl text-[#F4EDE4] pb-10",
-    "splashImage": "splash-background-1.png",
-    "splashEnabled": true,
-    "splashLauncher": "Acknowledgement of Country",
     "showLogo": true,
     "navHeight": "80px",
+    "showNotebooks": false,
     "help": {
-      "aboutText": "This is an Oni Data Portal publication. This portal provides access to a repository of language data, it is provided by the Language Data Commons of Australia [LDaCA](<a href='https://ldaca.edu.au'>https://ldaca.edu.au</a>).",
-      "helpUrl": "https://www.example.com",
-      "citationText": "CITE AS: Arkisto Platform. A project with co-investment from Australian Research Data Commons, The University of Queensland, The University of Melbourne, The University of Sydney, Monash University, First Languages Australia and AARNet."
+      "mainText": "For access please email help@example.com"
     },
-    "subHelpLinks": [
-      {"name": "Example Link", "href":"https://www.example.com", "target":"_blank"}
-    ],
     "terms": {
       "text": "Example terms of service",
-      "href": "/terms",
+      "href":"/terms",
       "title": "Terms of Service"
-    },
-    "privacy": {
-      "text": "Example privacy notice",
-      "href":"/privacy",
-      "title": "Privacy Notice"
     },
     "email": {
       "help": "help@example.com"
@@ -42,10 +28,6 @@
     },
     "login": {
       "enabled": true
-    },
-    "authorizationProvider": {
-      "label": "REMS",
-      "url": "https://rems-uat.example.com/applications"
     },
     "loginProviders": [
       {
@@ -68,16 +50,9 @@
       "URL": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:9"
     },
     "topNavItems": [ {
-      "route": "search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%252C%2522_isTopLevel.%2540value%2522%253A%255B%2522true%2522%255D%257D",
-      "display": "Top Collections"
-    }, {
-      "route": "search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%257D",
+      "route": "/search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%257D",
       "display": "Collections"
-    },
-      {
-        "route": "/search?f=%257B%2522%2540type%2522%253A%255B%2522SoftwareApplication%2522%255D%257D",
-        "display": "Notebooks"
-      }],
+    }],
     "main": {
       "fields": [
         {
@@ -110,9 +85,7 @@
         "contentSize"
       ],
       "expand": [
-        "speaker",
-        "author",
-        "citation"
+        "speaker", "author"
       ]
     },
     "collection": {
@@ -122,11 +95,7 @@
       },
       "top": [
         {
-          "display": "Name",
-          "name": "name"
-        },
-        {
-          "display": "Description",
+          "display": "",
           "name": "description"
         },
         {
@@ -154,15 +123,11 @@
           "_access",
           "_collectionStack",
           "_metadataIsPublic",
-          "_metadataLicense",
-          "identifier",
-          "_mainCollection",
-          "_subCollection"
+          "_metadataLicense"
         ],
         "displayHasMember": false,
         "displayHasPart": true
-      },
-      "relationships": [{"name":"notebook", "display":"Notebooks", "type":"SoftwareApplication"}]
+      }
     },
     "object": {
       "name": {
@@ -171,11 +136,7 @@
       },
       "top": [
         {
-          "display": "Name",
-          "name": "name"
-        },
-        {
-          "display": "Description",
+          "display": "",
           "name": "description"
         },
         {
@@ -206,9 +167,7 @@
           "_access",
           "_collectionStack",
           "_metadataIsPublic",
-          "_metadataLicense",
-          "_mainCollection",
-          "_subCollection"
+          "_metadataLicense"
         ]
       }
     },
@@ -225,9 +184,7 @@
           "_text",
           "_collectionStack",
           "_metadataIsPublic",
-          "_metadataLicense",
-          "_mainCollection",
-          "_subCollection"
+          "_metadataLicense"
         ]
       }
     },
@@ -238,11 +195,7 @@
       },
       "top": [
         {
-          "display": "Name",
-          "name": "name"
-        },
-        {
-          "display": "Description",
+          "display": "",
           "name": "description"
         },
         {
@@ -263,9 +216,7 @@
           "base64",
           "_access",
           "_metadataIsPublic",
-          "_metadataLicense",
-          "_mainCollection",
-          "_subCollection"
+          "_metadataLicense"
         ],
         "displayHasMember": false,
         "displayHasPart": false
@@ -313,27 +264,20 @@
         "display": "Annotation Type",
         "url": "https://schema.org/annotationType",
         "definition": "Dear Data Team, please add description"
-      },
-      {
-        "id": "_collectionStack",
-        "display": "Collection Hierarchy"
       }
-    ],
-    "analytics": {
-      "gaMeasurementId": "G-XXX"
-    }
+    ]
   },
   "api": {
     "bootstrap": false,
     "log": {
-      "logFolder": "./oni-storage/logs"
+      "logFolder": "/opt/storage/oni/logs"
     },
     "host": "http://localhost:8080",
     "ocfl": {
-      "ocflPath": "./oni-storage/ocfl",
-      "ocflScratch": "./oni-storage/scratch-ocfl",
-      "ocflTestPath": "./oni-storage/test/ocfl",
-      "ocflTestScratch": "./oni-storage/test/scratch-ocfl",
+      "ocflPath": "/opt/storage/oni/ocfl",
+      "ocflScratch": "/opt/storage/oni/scratch-ocfl",
+      "ocflTestPath": "/opt/storage/oni/test/ocfl",
+      "ocflTestScratch": "/opt/storage/oni/test/scratch-ocfl",
       "catalogFilename": "ro-crate-metadata.json",
       "hashAlgorithm": "md5",
       "create": {
@@ -363,19 +307,6 @@
       "admin": "1234-1234-1234-1234"
     },
     "services": {},
-    "authorization": {
-      "provider": "rems",
-      "enrollment": {
-        "enforced":  false,
-        "groups": ["CO:Members:all"],
-        "URL": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:9"
-      },
-      "rems": {
-        "apiUser": "XXX",
-        "apiKey": "XXX",
-        "apiHost": "https://rems-uat.ldaca.edu.au/api"
-      }
-    },
     "authentication": {
       "cilogon": {
         "clientID": "cilogon:/client_id/XXXXXXXXXXXX",
@@ -394,9 +325,7 @@
         "state": "cilogon",
         "oauthType": "AuthorizationCode",
         "useFormData": true,
-        "memberOf": "isMemberOf",
-        "userid": "sub",
-        "username": "sub"
+        "memberOf": "isMemberOf"
       },
       "github": {
         "clientID": "XXXXXXXXXXXX",
@@ -411,26 +340,45 @@
         "scope": "read:org, user",
         "state": "github",
         "oauthType": "ClientCredentials",
-        "useHeaders": true,
-        "userid": "id",
-        "username": "login"
+        "useHeaders": true
       }
     },
     "licenses": [
       {
-        "license": "#agreeToTerms",
-        "group": "agree-to-terms",
-        "access": "login",
+        "license": "https://www.dynamicsoflanguage.edu.au/sydney-speaks/licence/A/",
+        "group": "sydney-speaks-license-a",
         "enrollment": {
-          "url": "https://rems-uat.example.com/application?items=999",
-          "label": "Apply for access",
+          "url": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:20",
+          "label": "Click to enrol for access to Sydney Speaks A",
+          "class": ""
+        }
+      },
+      {
+        "license": "https://www.dynamicsoflanguage.edu.au/sydney-speaks/licence/B/",
+        "group": "sydney-speaks-license-b",
+        "enrollment": {
+          "url": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:36",
+          "label": "Click to enrol for access to for access to Sydney Speaks B",
+          "class": ""
+        }
+      },
+      {
+        "license": "https://www.dynamicsoflanguage.edu.au/sydney-speaks/licence/C/",
+        "group": "sydney-speaks-license-c",
+        "enrollment": {}
+      },
+      {
+        "license": "https://www.dynamicsoflanguage.edu.au/sydney-speaks/licence/D/",
+        "group": "sydney-speaks-license-d",
+        "enrollment": {
+          "url": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:33",
+          "label": "Click to enrol for access to Sydney Speaks D",
           "class": ""
         }
       },
       {
         "license": "#restricted",
         "group": "restricted-users",
-        "access": "loginPlus",
         "enrollment": {}
       }
     ],
@@ -445,10 +393,10 @@
         "description": "No License"
       },
       "defaultMetadata": {
-        "id": "https://creativecommons.org/licenses/by/4.0/",
+        "isPublic": true,
         "name": "Attribution 4.0 International (CC BY 4.0)",
-        "description": "You are free to:\nShare — copy and redistribute the material in any medium or format\nAdapt — remix, transform, and build upon the material\nfor any purpose, even commercially.\nThis license is acceptable for Free Cultural Works.\nThe licensor cannot revoke these freedoms as long as you follow the license terms.",
-        "isPublic": true
+        "id": "https://creativecommons.org/licenses/by/4.0/",
+        "description": "You are free to:\nShare — copy and redistribute the material in any medium or format\nAdapt — remix, transform, and build upon the material\nfor any purpose, even commercially.\nThis license is acceptable for Free Cultural Works.\nThe licensor cannot revoke these freedoms as long as you follow the license terms."
       }
     },
     "identifier": {
@@ -457,9 +405,9 @@
     "elastic": {
       "bootstrap": false,
       "node": "http://elasticsearch:9200",
+      "log": "debug",
       "maxScroll": 5000,
       "scrollTimeout": "10m",
-      "log": "debug",
       "index": "items",
       "indexConfiguration": {
         "mapping": {
@@ -467,29 +415,26 @@
             "limit": 2000
           }
         },
-        "max_result_window": 100000,
         "highlight": {
           "max_analyzed_offset": 1000000
         }
       },
-      "fields": {
-        "name.@value": {"label": "Name", "checked": true},
-        "description.@value": {"label": "Description", "checked": true},
-        "language.name.@value": {"label": "Language", "checked": true},
-        "language.alternateName.@value": {"label": "Alternate Language Name", "checked": true},
-        "contributor.@value": {"label": "Contributor", "checked": true},
-        "creator.@value": {"label": "Creator", "checked": true},
-        "place.nameOrTitle.@value": { "label": "Place", "checked", true },
-        "placevenue.nameOrTitle.@value": { "label": "Place Venue", "checked", true },
-        "_text": {"label": "Text", "checked": true}
-      },
+      "fields": [
+        "@id",
+        "name.@value",
+        "description.@value",
+        "_text",
+        "abstract.@value",
+        "keywords.name.@value",
+        "place.nameOrTitle.@value",
+        "placevenue.nameOrTitle.@value"
+      ],
       "aggregations": [
         {
           "display": "Collection",
           "order": 0,
           "name": "_root.name.@value",
-          "field": "_root.name.@value.keyword",
-          "active": true
+          "field": "_root.name.@value.keyword"
         },
         {
           "display": "Member Of",
@@ -501,16 +446,7 @@
           "display": "Access",
           "order": 2,
           "name": "license.name.@value",
-          "field": "license.name.@value.keyword",
-          "help": "The access conditions associated with a resource."
-        },
-        {
-          "display": "License",
-          "order": 0,
-          "name": "license.@id",
-          "field": "license.@id.keyword",
-          "hide": true,
-          "icons": true
+          "field": "license.name.@value.keyword"
         },
         {
           "display": "Record Type",
@@ -534,24 +470,19 @@
           "display": "Modality",
           "order": 6,
           "name": "modality.name.@value",
-          "field": "modality.name.@value.keyword",
-          "help": "The mode(s) (spoken, written, signed, etc.) used in the interaction represented by this resource.",
-          "icons": true
+          "field": "modality.name.@value.keyword"
         },
         {
           "display": "Linguistic Genre",
           "order": 7,
           "name": "linguisticGenre.name.@value",
-          "field": "linguisticGenre.name.@value.keyword",
-          "help": "The linguistic classification of the genre of this resource."
+          "field": "linguisticGenre.name.@value.keyword"
         },
         {
           "display": "File Format",
           "order": 8,
           "name": "encodingFormat.@value",
-          "field": "encodingFormat.@value.keyword",
-          "help": "The media type of the resource.",
-          "icons": true
+          "field": "encodingFormat.@value.keyword"
         },
         {
           "display": "Annotation Type",
