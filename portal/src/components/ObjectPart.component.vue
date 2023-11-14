@@ -38,7 +38,7 @@
   </el-row>
 </template>
 <script>
-import { first, reject } from "lodash";
+import {first, reject, sortBy} from "lodash";
 import FileResolve from "./FileResolve.component.vue";
 import MetaField from "./MetaField.component.vue";
 
@@ -95,7 +95,7 @@ export default {
         }
         this.meta.push({ name: filter, data: this.metadata[filter], help: helper });
       }
-      console.log(this.meta);
+      this.meta = sortBy(this.meta, 'name');
     }
   }
 }

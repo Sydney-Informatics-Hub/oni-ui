@@ -21,12 +21,6 @@ const configuration = merge(common, {
         ws: true,
         changeOrigin: true,
         pathRewrite: { '^/api': '' } // This instead of nginx proxy
-      },
-      '/docs/**': {
-        target: 'http://[::1]:3000',
-        ws: true,
-        changeOrigin: true,
-        pathRewrite: { '^/docs': '/docs/' } // This instead of nginx proxy
       }
     }
   }

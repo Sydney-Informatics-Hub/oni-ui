@@ -22,19 +22,20 @@
       </el-row>
       <el-row v-if="errorMessage">
         <p class="items-center">
-        {{ errorMessage }}
+          {{ errorMessage }}
         </p>
       </el-row>
       <template v-if="isLoggedIn" v-loading="loading">
         <enrollment-card v-if="noEnrollment"/>
         <template v-else>
-          <el-row >
+          <el-row>
             <p class="items-center">You are logged in and you can apply for permission to view these files</p>
           </el-row>
           <el-row v-if="enrollment?.url">
-              <el-link underline="underline" :href="enrollment.url" target="_blank" class="mx-1">
-                {{ enrollment.label }}
-              </el-link>
+            <el-link underline="underline" :href="enrollment.url" target="_blank" class="mx-1"
+                     title="Will open in a new tab">
+              {{ enrollment.label }}&nbsp;<font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square"/>
+            </el-link>
             <enrollment-card v-if="noEnrollment"/>
           </el-row>
           <el-row v-if="enrollment?.url">

@@ -48,7 +48,7 @@ export default {
     async filter(filters) {
       const items = await this.$elasticService.multi({
         filters: filters,
-        aggs: this.aggregations
+        aggs: this.aggregations, sort: 'relevance', order: 'desc'
       });
       if (items?.hits?.hits.length > 0) {
         return {

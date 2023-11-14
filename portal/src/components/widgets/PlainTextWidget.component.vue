@@ -1,5 +1,5 @@
 <template>
-  <div>{{ this.content }}</div>
+  <div class="whitespace-pre-wrap bg-slate-50">{{ this.content }}</div>
 </template>
 <script>
 import {isEmpty} from 'lodash';

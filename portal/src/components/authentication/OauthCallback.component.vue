@@ -88,8 +88,8 @@ export default {
               this.showEnrollment = true;
             } else {
               let lastRoute = getLocalStorage({key: 'lastRoute'});
+              removeLocalStorage({key: 'lastRoute'});
               if (lastRoute) {
-                removeLocalStorage({key: 'lastRoute'});
                 await this.$router.push(lastRoute);
               } else {
                 await this.$router.push("/");

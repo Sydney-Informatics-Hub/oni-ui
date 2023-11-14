@@ -1,7 +1,7 @@
 <template>
-  <el-row :justify="'center'" class="bg-gray-50 w-full">
+  <el-row :justify="'center'" class="w-full">
     <el-col :span="24">
-      <div class="container max-w-screen-lg mx-auto">
+      <div class="container mx-auto">
         <el-row>
           <el-col :xs="24" :sm="15" :md="24" :lg="24" :xl="24">
             <h3 class="relative space-x-3 font-bold p-3 text-xl select-none text-left">
@@ -13,8 +13,8 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-            <file-resolve class="flex justify-center h-screen " :id="id" :resolve="resolve" :encoding="encoding"
+          <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="flex justify-center h-screen overflow-auto">
+            <file-resolve :id="id" :resolve="resolve" :encoding="encoding"
               :crateId="crateId" :rootId="rootId" :name="title" :parentName="parentTitle" :hideOpenLink="true"
               :isPreview="false" :access="access" :license="license" />
           </el-col>

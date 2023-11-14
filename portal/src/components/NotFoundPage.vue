@@ -11,7 +11,7 @@
         <div class="text-center text-sm">
           <p class="text-2xl">{{ not_found || '404 not found' }}</p>
           <p class="text-2xl">{{ not_found_message || 'Hi!It seems you\'re in the wrong page' }}</p>
-          <p class="text-2xl"><el-link @click="go_url() || this.$router.push('/')">{{ go || 'Go Home' }}</el-link></p>
+          <p class="text-2xl"><el-link @click="this.$router.push('/')">{{ go || 'Go Home' }}</el-link></p>
         </div>
       </div>
     </el-col>

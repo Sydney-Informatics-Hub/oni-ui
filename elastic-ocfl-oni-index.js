@@ -29,7 +29,10 @@ const assert = require("assert");
   // Configure mappings
   await client.indices.create({
     index: elastic['index'],
-    body: {mappings: elastic['mappings']}
+    body: {
+      max_result_window: elastic['max_result_window'],
+      mappings: elastic['mappings']
+    }
   });
   // Put Settings
   await client.indices.putSettings({

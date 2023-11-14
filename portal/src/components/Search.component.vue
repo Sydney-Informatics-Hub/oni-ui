@@ -1,127 +1,219 @@
 <template>
-  <div class="min-w-full pb-4 pt-0 px-2 pl-4">
-    <div class="bg-white z-10">
-    </div>
-    <el-row :gutter="40" :offset="1" style="margin-right: 0">
-      <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="5" :span="4" class="max-w-0 h-auto">
-        <div class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
-          <search-bar ref='searchBar' @populate='populate' v-bind:searchInput="searchInput" @input="onInputChange"
-                      @search="search" :clearSearch="clear" :filters="this.filters"
-                      class="grid grid-row-2 justify-items-center items-center h-20 m-4"/>
+  <el-row :gutter="0" :offset="0" style="" class="pb-4 pt-0">
+    <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="7" :offset="0"
+            class="h-full max-h-screen overflow-y-auto flex flex-col h-screen p-2"
+            id="search_aggregation">
+      <div v-show="!advancedSearch"
+           class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
+        <search-bar ref='searchBar' @populate='populate' :searchInput="searchInput"
+                    @search="search" :clearSearch="clear" :filters="this.filters" :fields="searchFields"
+                    class="grow justify-items-center items-center m-4"
+                    @advanced-search="enableAdvancedSearch" :enableAdvancedSearch="advancedSearch"
+                    @updateSearchInput="onInputChange"
+                    @basicSearch="updateRoutes"/>
+      </div>
+      <div class="flex-1 w-full min-w-full bg-white mt-4 mb-4 border-b-2">
+        <div class="py-3 px-2">
+          <div class="">
+            <p class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
+              Filters
+            </p>
+          </div>
         </div>
-        <div class="pt-2">
-          <div class="flex w-full" v-for="aggs of aggregations" :key="aggs.name">
-            <ul v-if="aggs?.buckets?.length > 0"
-                class="flex-1 w-full min-w-full bg-white rounded p-2 mb-4 shadow-md border">
-              <li class="border-b-2">
-                <button class="m-2 text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
+      </div>
+      <div class="pt-2">
+        <div class="flex w-full" v-for="aggs of aggregations" :key="aggs.name">
+          <ul v-if="aggs?.buckets?.length > 0 && !aggs['hide']"
+              class="flex-1 w-full min-w-full bg-white rounded p-2 mb-4 shadow-md border">
+            <li @click="aggs.active = !aggs.active"
+                class="hover:cursor-pointer py-3 flex md:flex md:flex-grow flex-row justify-between space-x-1">
+                <span class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
                   {{ aggs.display }}
-                </button>
-              </li>
-              <li v-if="aggs?.buckets?.length <= 0" class="w-full min-w-full">&nbsp;</li>
-              <search-aggs :buckets="aggs.buckets" :aggsName="aggs.name" :ref="aggs.name"/>
-            </ul>
-          </div>
+                      <el-tooltip v-if="aggs.help"
+                                  class="box-item"
+                                  effect="light"
+                                  trigger="hover"
+                                  :content="aggs.help"
+                                  placement="top"
+                      >
+                      <el-button link>
+                        <font-awesome-icon icon="fa-solid fa-circle-info"/>
+                      </el-button>
+                    </el-tooltip>
+                </span>
+              <span class="py-1 px-2">
+                    <font-awesome-icon v-if="aggs.active" icon="fa fa-chevron-down"/>
+                  <span v-else>
+                    <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
+                        aggs?.buckets?.length
+                      }}</span>&nbsp;
+                    <font-awesome-icon icon="fa fa-chevron-right"/>
+                    </span>
+                </span>
+            </li>
+            <li v-if="aggs?.buckets?.length <= 0" class="w-full min-w-full">&nbsp;</li>
+            <search-aggs :buckets="aggs.buckets" :aggsName="aggs.name" :ref="aggs.name"
+                         v-show="aggs.active" @is-active="aggs.active = true"
+                         @changed-aggs="newAggs"/>
+          </ul>
         </div>
-      </el-col>
-      <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="19" :span="20" :offset="0" v-loading="this.loading">
-        <div class="pr-0">
-          <div class="top-20 z-10 bg-white pb-5">
-            <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
-              <span class="my-1 mr-3" v-if="!isEmpty(this.$route.query.q)">Showing searches for: &nbsp;<span
-                  class="px-3 border-dashed border-2 border-indigo-600">{{ this.$route.query.q }}</span></span>
-              <span class="my-1 mr-1" v-if="!isEmpty(this.filters)">Filtering by:</span>
-              <el-button-group class="my-1 mr-2" v-for="(filter, filterKey) of this.filters" :key="filterKey"
-                               v-model="this.filters">
-                <el-button plain>{{ clean(filterKey) }}</el-button>
-                <el-button v-if="filter && filter.length > 0" v-for="f of filter" :key="f" color="#626aef" plain
-                           @click="this.updateFilters({clear: {f, filterKey }})" class="text-2xl">
-                  {{ clean(f) }}
-                  <el-icon class="el-icon--right">
-                    <CloseBold/>
-                  </el-icon>
-                </el-button>
-              </el-button-group>
-              <span class="my-1 mr-2">Total: {{ this.totals['value'] || 0 }} Index entries (Collections, Objects, Files and Notebooks)</span>
-            </el-row>
-            <el-row class="pt-2">
-              <el-button-group v-if="(!isEmpty(this.$route.query.f) || !isEmpty(this.$route.query.q)) && !isStart">
-                <el-button type="default" v-on:click="this.resetSearch">RESTART SEARCH</el-button>
-              </el-button-group>
-            </el-row>
-          </div>
-          <!--          <div v-if="this.isStart">-->
-          <!--            <div v-if="this.showTopCollections">-->
-          <!--              <top-collections :collections="this.collections"/>-->
-          <!--              <el-row>-->
-          <!--                <el-link v-if="this.collectionTotals > this.collections.length"-->
-          <!--                         @click="getNextCollections(this.collectionScrollId);this.newSearch=false;">more collections-->
-          <!--                </el-link>-->
-          <!--              </el-row>-->
-          <!--            </div>-->
-          <!--          </div>-->
-          <div v-for="item of this.items" class="z-0 mt-0 mb-4 w-full">
-            <search-detail-element :id="item._source['@id']" :href="getSearchDetailUrl(item)"
-                                   :name="first(item._source.name)?.['@value'] || first(first(item._source.identifier)?.value)?.['@value']"
-                                   :conformsTo="item.conformsTo" :types="item._source?.['@type']"
-                                   :languages="item._source?.['language']"
-                                   :_memberOf="item._source?._memberOf" :highlight="item?.highlight"
-                                   :root="item._source?._root"
-                                   :parent="item._source?._parent" :aggregations="aggregations"
-                                   :details="item._source"/>
-          </div>
-          <div v-if="!this.items.length > 0">
-            <el-row class="pb-4 items-center">
-              <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
-                No items were found with that search input
-              </h5>
-            </el-row>
-            <el-row>
-              <p class="text-center">
-                <el-button type="primary" v-on:click="this.resetSearch">RESTART SEARCH</el-button>
-              </p>
-            </el-row>
-          </div>
-          <el-row :gutter="2" v-if="this.more && !noMoreResults" class="flex justify-center p-6">
-            <el-button @click="getNext()">
-              <font-awesome-icon icon="fa-solid fa-arrow-alt-circle-down"/>&nbsp;VIEW MORE
-            </el-button>
+      </div>
+    </el-col>
+    <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="17" :offset="0"
+            class="max-h-screen overflow-y-auto flex flex-row h-screen p-2 px-3"
+            id="search_results">
+      <div v-show="advancedSearch" id="advanced_search_box"
+           class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
+        <search-advanced :advancedSearch="advancedSearch" :fields="searchFields"
+                         @basic-search="basicSearch"
+                         @do-advanced-search="updateRoutes" :resetAdvancedSearch="resetAdvancedSearch"/>
+      </div>
+      <div class="pr-0">
+        <div class="top-20 z-10 bg-white pb-5">
+          <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
+            <el-button-group class="mr-1">
+              <el-button type="warning" v-show="changedFilters" @click="updateRoutes({updateFilters: true})">Apply
+                Filters
+              </el-button>
+            </el-button-group>
+            <span class="my-1 mr-1" v-show="!changedFilters" v-if="!isEmpty(this.filters)">Filtering by:</span>
+            <el-button-group v-show="!changedFilters"
+                             class="my-1 mr-2" v-for="(filter, filterKey) of this.filters" :key="filterKey"
+                             v-model="this.filters">
+              <el-button plain>{{ clean(filterKey) }}</el-button>
+              <el-button v-if="filter && filter.length > 0" v-for="f of filter" :key="f" color="#626aef" plain
+                         @click="this.updateFilters({clear: {f, filterKey }})" class="text-2xl">
+                {{ clean(f) }}
+                <el-icon class="el-icon--right">
+                  <CloseBold/>
+                </el-icon>
+              </el-button>
+            </el-button-group>
+            <el-button-group class="mr-1">
+              <el-button v-show="!isEmpty(this.filters)" @click="clearFilters()">Clear Filters</el-button>
+            </el-button-group>
+            <span id="total_results"
+                  class="my-1 mr-2" v-show="this.totals['value']">Total: <span>{{ this.totals['value'] }} Index entries (Collections, Objects, Files and Notebooks)</span></span>
           </el-row>
-          <el-row v-if="noMoreResults" class="flex justify-center p-6">
-            <h5 class="mb-2 text-1xl tracking-tight dark:text-white">
-              No more items found with that filter or search query
+          <el-row class="pt-2">
+            <el-col :span="24" class="flex space-x-4">
+              <el-button-group class="my-1">
+                <el-button type="default" v-on:click="this.resetSearch">RESET SEARCH</el-button>
+              </el-button-group>
+              <el-select v-model="selectedSorting" @change="sortResults" class="my-1">
+                <template #prefix>Sort by:</template>
+                <el-option
+                    v-for="item in sorting"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                />
+              </el-select>
+              <el-select v-model="selectedOrder" @change="orderResults" class="my-1">
+                <template #prefix>Order by:</template>
+                <el-option
+                    v-for="item in ordering"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                />
+              </el-select>
+            </el-col>
+          </el-row>
+        </div>
+        <div class="py-0 w-full">
+          <el-pagination class="items-center w-full"
+                         background layout="prev, pager, next"
+                         :total="totals['value']"
+                         v-model:page-size="pageSize"
+                         @update:page-size="pageSize"
+                         v-model:currentPage="currentPage"
+                         @current-change="updatePages($event, 'top_menu')"/>
+        </div>
+        <div v-for="item of this.items" :key="item._id"
+             class="z-0 mt-0 mb-4 w-full"
+             v-loading="loading">
+          <search-detail-element v-if="item._source" :id="item._source['@id']" :href="getSearchDetailUrl(item)"
+                                 :name="first(item._source.name)?.['@value'] || first(first(item._source.identifier)?.value)?.['@value']"
+                                 :conformsTo="item.conformsTo" :types="item._source?.['@type']"
+                                 :_memberOf="item._source?._memberOf" :highlight="item?.highlight"
+                                 :root="item._source?._root"
+                                 :parent="item._source?._parent" :aggregations="aggregations"
+                                 :details="item._source" :score="item._score"/>
+        </div>
+        <div v-loading="loading" v-if="!this.items.length > 0">
+          <el-row class="pb-4 items-center">
+            <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
+              <span v-if="!loading">No items found</span>
             </h5>
           </el-row>
+          <el-row>
+            <p class="text-center">
+              <el-button type="primary" v-on:click="this.resetSearch">RESTART SEARCH</el-button>
+            </p>
+          </el-row>
         </div>
-      </el-col>
-    </el-row>
-    <el-dialog v-model="errorDialogVisible" width="30%" center>
-      <el-alert title="Error" type="warning" :closable="false">
-        <p class="break-normal">{{ this.errorDialogText }}</p>
-      </el-alert>
-      <template #footer>
+        <el-row v-if="noMoreResults" class="flex justify-center p-6">
+          <h5 class="mb-2 text-1xl tracking-tight dark:text-white">
+            No more items found with that filter or search query
+          </h5>
+        </el-row>
+        <div class="py-2 w-full">
+          <el-pagination class="items-center w-full"
+                         background layout="prev, pager, next"
+                         :total="totals['value']"
+                         v-model:page-size="pageSize"
+                         @update:page-size="pageSize"
+                         v-model:currentPage="currentPage"
+                         @current-change="updatePages($event, 'total_results')"/>
+        </div>
+      </div>
+    </el-col>
+  </el-row>
+  <el-dialog v-model="errorDialogVisible" width="40%" center>
+    <el-alert title="Error" type="warning" :closable="false">
+      <p class="break-normal">{{ this.errorDialogText }}</p>
+    </el-alert>
+    <template #footer>
         <span class="dialog-footer">
           <el-button type="primary" @click="errorDialogVisible = false">Close</el-button>
         </span>
-      </template>
-    </el-dialog>
-  </div>
+    </template>
+  </el-dialog>
+  <el-row v-show="changedFilters"
+          class="bg-white rounded m-4 p-4 px-8 shadow-md border"
+          role="alert"
+          style="bottom: 16px; z-index: 2044; position: fixed">
+    <el-row class="p-2">
+      <div class="w-full">
+        <el-button-group class="self-center">
+          <el-button @click="clearFilters()">Clear Filters</el-button>
+          <el-button type="warning" @click="updateRoutes({updateFilters: true})">Apply Filters</el-button>
+        </el-button-group>
+      </div>
+    </el-row>
+  </el-row>
+  <el-row></el-row>
 </template>
 
 
 <script>
 
-import {first, isEmpty, orderBy, toArray, find, isUndefined} from 'lodash';
+import {first, last, isEmpty, orderBy, toArray, find, isUndefined} from 'lodash';
 import {CloseBold} from "@element-plus/icons-vue";
 import {defineAsyncComponent, toRaw} from "vue";
 import SearchDetailElement from './SearchDetailElement.component.vue';
 import SearchAggs from './SearchAggs.component.vue';
+import {putLocalStorage, getLocalStorage, removeLocalStorage} from '@/storage';
+import SearchAdvanced from "./SearchAdvanced.component.vue";
+import {v4 as uuid} from 'uuid';
 
 export default {
   components: {
     SearchBar: defineAsyncComponent(() =>
         import("@/components/SearchBar.component.vue")
     ),
+    SearchAdvanced,
     SearchDetailElement,
     CloseBold,
     SearchAggs
@@ -131,6 +223,8 @@ export default {
       searchInput: '',
       items: [],
       totals: {},
+      pageSize: 10,
+      currentPage: 1,
       more: false,
       aggregations: {},
       memberOfBuckets: [],
@@ -143,37 +237,101 @@ export default {
       showRepositoryCollections: false,
       collections: [],
       collectionTotals: 0,
-      collectionScrollId: '',
       isStart: false,
       newSearch: true,
       isBrowse: false,
       errorDialogVisible: false,
       errorDialogText: '',
       conformsToNotebook: this.$store.state.configuration.ui.conformsTo?.notebook,
-      noMoreResults: false
+      noMoreResults: false,
+      searchFields: this.$store.state.configuration.ui.searchFields,
+      sorting: [
+        {value: 'relevance', label: 'Relevance'},
+        {value: '_isTopLevel.@value.keyword', label: 'Collections'}
+      ],
+      selectedSorting: null,
+      defaultSorting: {value: 'relevance', label: 'Relevance'},
+      ordering: [
+        {value: 'asc', label: 'Ascending'},
+        {value: 'desc', label: 'Descending'}
+      ],
+      selectedOrder: {value: 'desc', label: 'Descending'},
+      searchFrom: 0,
+      selectedOperation: 'must',
+      changedFilters: false,
+      advancedSearch: false,
+      advancedQueries: null,
+      resetAdvancedSearch: false
     };
   },
   watch: {
     async '$route.query'() {
       this.loading = true;
-      await this.updateFilters({});
-      this.onInputChange(this.$route.query.q);
-      await this.search();
+      if (this.$route.query.s) {
+        this.isStart = true;
+        this.resetSearch();
+      } else {
+        await this.updateFilters({});
+        this.onInputChange(this.$route.query.q);
+        this.currentPage = 1;
+        if (this.$route.query.a) {
+          this.updateAdvancedQueries();
+        }
+        await this.search();
+      }
       this.loading = false;
     }
   },
-  async updated() {
-    await this.updateRoutes();
+  async created() {
+    console.log('created');
+    this.isStart = true;
+    await this.updateFilters({});
+    if (this.$route.query.q) {
+      this.searchInput = this.$route.query.q;
+    }
+    if (this.$route.query.a) {
+      this.updateAdvancedQueries();
+    } else {
+      this.advancedSearch = false;
+      removeLocalStorage({key: 'advancedQueries'});
+    }
+    this.loading = true;
+    // const aggregations = await this.$elasticService.multi({
+    //   multi: '',
+    //   filters: {},
+    //   sort: this.sorting[0].value,
+    //   order: 'desc',
+    //   operation: 'must',
+    //   pageSize: 10,
+    //   searchFrom: 0
+    // });
+    // this.aggregations = this.populateAggregations(aggregations['aggregations']);
+    await this.search();
+    this.loading = false;
+    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
   async mounted() {
-    this.loading = true;
-    if (isEmpty(this.$route.query.f) && isEmpty(this.$route.query.q)) {
-      //await this.resetSearch();
-      console.log('not sure!')
-    }
+    console.log('mounted');
     await this.updateFilters({});
-    await this.search(this.$route.query.q);
-    this.loading = false;
+    if (this.$route.query.o) {
+      this.selectedOperation = this.$route.query.o;
+    }
+    if (!this.$route.query.sf) {
+      this.searchFields = this.$store.state.configuration.ui.searchFields;
+    }
+    if (this.$route.query.a) {
+      this.updateAdvancedQueries()
+    } else {
+      this.advancedSearch = false;
+    }
+  },
+  async updated() {
+    console.log('updated');
+    if (this.$route.query.q) {
+      this.advancedSearch = false;
+    }
+    // await this.updateFilters({});
+    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
   methods: {
     toArray,
@@ -190,7 +348,7 @@ export default {
               delete this.filters[clear.filterKey];
             }
             //if there is an update on the filter the site will do another search.
-            await this.updateRoutes();
+            await this.updateRoutes({updateFilters: true});
           }
         } else {
           // or updating filters from routes
@@ -213,33 +371,66 @@ export default {
         console.error(e);
       }
     },
-    async updateRoutes() {
+    async updateRoutes({queries, updateFilters}) {
       let filters;
-      const query = {q: this.$route.query.q}
-      if (this.filters) {
+      const query = {};
+      let localFilterUpdate = false;
+      if (!isEmpty(this.filters) || updateFilters) {
         filters = toRaw(this.filters);
         filters = encodeURIComponent(JSON.stringify(filters));
         query.f = filters;
+        localFilterUpdate = true;
+      } else {
+        delete query.f;
       }
+      if (this.$route.query.f && !localFilterUpdate) {
+        query.f = this.$route.query.f;
+      }
+      let localSearchGroupUpdate = false;
+      if (queries?.searchGroup) {
+        this.advancedQueries = queries;
+        delete query.q;
+        query.a = queries.searchGroup;
+        this.currentPage = 1;
+        //this.selectedSorting = this.sorting[0];
+        localSearchGroupUpdate = true;
+      }
+      if (this.$route.query.a && !localSearchGroupUpdate) {
+        query.a = this.$route.query.a;
+        delete query.q;
+        this.updateAdvancedQueries();
+      } else {
+        this.advancedQueries = null; //clear advanced search
+        query.q = this.searchInput;
+      }
+      query.r = uuid();
       await this.$router.push({path: 'search', query, replace: true});
+    },
+    updateAdvancedQueries() {
+      this.advancedSearch = true;
+      let searchGroup;
+      try {
+        searchGroup = JSON.parse(decodeURIComponent(this.$route.query.a));
+      } catch (e) {
+        throw new Error('There was a problem with your advanced query please try again');
+      }
+      let queryString = this.$elasticService.queryString(searchGroup);
+      this.advancedQueries = {queryString, searchGroup};
     },
     async bucketSelected({checkedBuckets, id}) {
       // this.filters[id] = checkedBuckets.map((k) => {
       //   return {key: k}
       // });
       this.filters[id] = checkedBuckets;
-      await this.updateRoutes();
+      await this.updateRoutes({updateFilters: true});
     },
-    populate({items, newSearch}) {
+    populate({items, newSearch, aggregations}) {
+      this.items = [];
       if (newSearch) {
-        this.items = [];
         this.newSearch = true;
-        this.scrollToTop();
+
       }
-      if (items['_scroll_id']) {
-        this.scrollId = items['_scroll_id'];
-      }
-      if (items['hits']) {
+      if (items?.['hits']) {
         const thisItems = items['hits']['hits'];
         this.totals = items['hits']['total'];
         if (thisItems.length > 0) {
@@ -251,7 +442,7 @@ export default {
           this.more = false;
         }
       }
-      if (items['aggregations']) {
+      if (items?.['aggregations']) {
         this.aggregations = this.populateAggregations(items['aggregations']);
         this.memberOfBuckets = items['aggregations']?.['_memberOf.name.@value'];
       }
@@ -265,58 +456,85 @@ export default {
         const display = info?.display;
         const order = info?.order;
         const name = info?.name;
+        const hide = info?.hide;
+        const active = info?.active;
+        const help = info?.help;
         a[agg] = {
           buckets: aggregations[agg]?.buckets || aggregations[agg]?.values?.buckets,
           display: display || agg,
           order: order || 0,
-          name: name || agg
+          name: name || agg,
+          hide: hide,
+          active: active,
+          help: help || ''
         };
       }
       return orderBy(a, 'order');
-    },
-    async getNext() {
-      try {
-        const items = await this.$elasticService.scroll(this.scrollId);
-        if (items.error) {
-          this.errorDialogVisible = true;
-          this.errorDialogText = 'Your search session has expired, please reload';
-        } else {
-          if (items?.hits?.hits?.length > 0) {
-            this.populate({items});
-          } else {
-            this.noMoreResults = true;
-          }
-        }
-      } catch (e) {
-        this.errorDialogVisible = true;
-        this.errorDialogText = 'Your search session has expired, please reload';
-      }
     },
     onInputChange(value) {
       this.searchInput = value;
     },
     async resetSearch() {
+      this.scrollToTop();
       this.clear = !this.clear;
       this.searchInput = '';
       this.$route.query.q = '';
       this.$route.query.f = '';
       this.$route.query.t = '';
+      if (this.resetAdvancedSearch) {
+        this.advancedSearch = false;
+      } else {
+        this.advancedSearch = this.$route.query.a || false;
+      }
+      this.advancedQueries = null;
+      this.resetAdvancedSearch = true
+      this.searchFields = this.$store.state.configuration.ui.searchFields;
+      this.$route.query.sf = encodeURIComponent(this.searchFields);
+      this.$route.query.o = this.selectedOperation;
+      this.selectedOrder = 'desc';
       this.filterButton = [];
       this.isStart = true;
       this.isBrowse = false;
-      //this.filters = {};
-      await this.clearAggregations()
-      await this.searchAll();
-    },
-    async searchAll() {
-      this.isStart = false;
-      await this.$router.push({path: 'search'});
-      await this.search();
+      this.currentPage = 1;
+      this.filters = {};
+      await this.clearAggregations();
+      // await this.search();
+      const query = {};
+      await this.$router.push({path: 'search', query});
     },
     scrollToTop() {
       setTimeout(function () {
+        console.log('ran scrolling to top')
+        document.body.scrollTop = 0; // For Safari
+        document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        window.scrollTo(0, 0);
+        document.getElementById('search_results').scrollTop = 0;
+        document.getElementById('search_aggregation').scrollTop = 0;
+        document.getElementById('advanced_search_box').scrollTop = 0;
+      }, 100);
+    },
+    scrollToId(id) {
+      setTimeout(function () {
         // window.scroll({top: 0, left:0, behavior: 'smooth'});
-        document.getElementById('app').scrollIntoView({behavior: 'smooth'});
+        document.body.scrollTop = 0; // For Safari
+        document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        document.body.scrollTop = 0; // For Safari
+        document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        window.scrollTo(0, 0);
+        const element = document.getElementById(id);
+        element.scrollIntoView({behavior: 'smooth'});
+        element.scrollTop = 0;
+      }, 100);
+    },
+    scrollToSelector(selector) {
+      setTimeout(function () {
+        // window.scroll({top: 0, left:0, behavior: 'smooth'});
+        document.body.scrollTop = 0; // For Safari
+        document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        window.scrollTo(0, 0);
+        const element = document.querySelector(selector);
+        element.scrollIntoView({behavior: 'smooth'});
+        element.scrollTop = 0;
       }, 100);
     },
     async clearAggregations() {
@@ -334,29 +552,49 @@ export default {
       }
       this.filters = {};
     },
-    async search(input) {
-      this.noMoreResults = false;
-      await this.$elasticService.requestNewSearch({
-        scrollId: this.scrollId,
-        collectionScrollId: this.collectionScrollId
-      });
-      if (input) {
-        this.searchQuery = input;
-      } else {
-        this.searchQuery = this.$route.query.q || '';
+    async search() {
+      this.loading = true;
+      if (this.isStart) { //Revert start to sorting by collections
+        this.selectedSorting = this.sorting[1].value; //collection
+        this.isStart = false;
+      } else if (this.searchInput) { // If there is a query sort by relevance
+        this.selectedSorting = this.defaultSorting.value;
+      } else if (this.advancedSearch) { // If advanced search is enabled sort by relevance
+        this.selectedSorting = this.defaultSorting.value;
+      } else if (!this.selectedSorting) { // If there is one selected sorting do that
+        this.selectedSorting = this.defaultSorting.value;
       }
+      this.changedFilters = false;
+      this.noMoreResults = false;
       let filters = {};
       if (!isEmpty(this.filters)) {
         filters = this.filters;
       } else {
         filters = {};
       }
-      this.items = await this.$elasticService.multi({
-        multi: this.searchQuery,
-        filters: toRaw(filters),
-        scroll: true
-      });
-      this.populate({items: this.items, newSearch: true});
+      let order = this.selectedOrder.value;
+      if (!order) {
+        order = this.selectedOrder;
+      }
+      try {
+        this.items = await this.$elasticService.multi({
+          multi: this.searchInput,
+          filters: toRaw(this.filters),
+          searchFields: this.searchFields,
+          sort: this.selectedSorting,
+          order: order,
+          operation: this.selectedOperation,
+          pageSize: this.pageSize,
+          searchFrom: (this.currentPage - 1) * this.pageSize,
+          queries: this.advancedQueries
+        });
+        this.populate({items: this.items, newSearch: true, aggregations: this.aggregations});
+        this.loading = false;
+      } catch (e) {
+        this.errorDialogVisible = true;
+        this.errorDialogText = e.message;
+        this.loading = false;
+      }
     },
     getSearchDetailUrl(item) {
       //console.log(item);
@@ -401,7 +639,67 @@ export default {
         string = string.replace(/@|_|(\..*)/g, "")
         return string;
       }
+    },
+    sortResults(sort) {
+      this.currentPage = 1;
+      this.selectedSorting = sort;
+      this.search();
+    },
+    orderResults(order) {
+      this.currentPage = 1;
+      this.selectedOrder = order;
+      this.search();
+    },
+    async updatePages(page, scrollTo) {
+      this.currentPage = page;
+      await this.search();
+      this.scrollToTop();//Id(scrollTo);
+    },
+    async clearFilters() {
+      this.filters = {};
+      await this.updateRoutes({updateFilters: true});
+    },
+    newAggs({query, aggsName}) {
+      if (query.f) {
+        //In here we need to merge the filters
+        const decodedFilters = JSON.parse(decodeURIComponent(query.f));
+        this.mergeFilters(decodedFilters, aggsName);
+      }
+      if (query.q) {
+        this.searchInput = decodeURIComponent(query.q);
+      }
+      console.log(isEmpty(this.filters))
+      this.changedFilters = true;
+    },
+    enableAdvancedSearch() {
+      this.advancedSearch = true;
+      this.scrollToTop();//('advanced_search_box');
+      this.searchInput = '';
+    },
+    basicSearch() {
+      this.advancedSearch = false;
+      this.resetAdvancedSearch = true;
+      this.resetSearch();
+    },
+    mergeFilters(newFilters, aggsName) {
+      let filters = toRaw(this.filters);
+      if (isEmpty(this.filters)) {
+        this.filters = newFilters;
+      } else {
+        this.filters[aggsName] = newFilters[aggsName] || [];
+        if (isEmpty(this.filters[aggsName])) {
+          delete this.filters[aggsName];
+        }
+      }
+      console.log('is this.filters empty?');
+      console.log(isEmpty(this.filters))
+      // this.filters = filters;
     }
   }
 };
 </script>
+<style>
+html {
+  scroll-behavior: smooth;
+}
+</style>

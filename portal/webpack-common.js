@@ -5,6 +5,8 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const {VueLoaderPlugin} = require("vue-loader");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
 const webpack = require('webpack');
 
 require('dotenv').config({path: '../.env'});
@@ -27,7 +29,15 @@ module.exports = {
       template: "./public/index.html",
     }),
     new VueLoaderPlugin(),
-    new MiniCssExtractPlugin({filename: "[contenthash].css"})
+    new MiniCssExtractPlugin({filename: "[contenthash].css"}),
+    new CopyWebpackPlugin({patterns:[
+        {
+          // Copy the Swagger OAuth2 redirect file to the project root;
+          // that file handles the OAuth2 redirect after authenticating the end-user.
+          from: require.resolve('swagger-ui/dist/oauth2-redirect.html'),
+          to: './'
+        }
+      ]})
   ],
   module: {
     rules: [
@@ -50,7 +60,15 @@ module.exports = {
             },
           },
           "css-loader",
-          "postcss-loader",
+          // "style-loader",
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: ['postcss-url']
+              }
+            }
+          }
         ],
       },
       {

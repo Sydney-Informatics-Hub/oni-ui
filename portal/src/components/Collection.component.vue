@@ -1,5 +1,5 @@
 <template>
-  <div class="px-10 pt-10 pb-7 sticky top-0 bg-white z-10">
+  <div class="px-10 pt-10 pb-7 bg-white z-10">
     <el-row :align="'middle'" class="mb-2 text-3xl font-medium dark:text-white">
       <h5>
         <member-of-link :memberOf="metadata?._memberOf"/>
@@ -18,13 +18,18 @@
       </el-row>
       <el-row v-if="collectionSubCollections">
         <el-col>
-          <collection-members :title="'Sub Collections'" :members="collectionSubCollections"
+          <collection-members :title="'Sub Collections'"
+                              :id="$route.query.id"
+                              :conformsTo="conformsToCollection"
                               :routePath="'collection'"/>
         </el-col>
       </el-row>
       <el-row>
         <el-col v-if="collectionMembers">
-          <collection-members :title="'Objects in Collection'" :members="collectionMembers" :routePath="'object'"/>
+          <collection-members :title="'Objects in Collection'"
+                              :id="$route.query.id"
+                              :conformsTo="conformsToObject"
+                              :routePath="'object'"/>
         </el-col>
       </el-row>
     </el-col>
@@ -73,7 +78,12 @@
               <hr class="divider divider-gray mt-4 pb-2"/>
               <h4 class="text-1xl font-medium">
                 Metadata licensed as:
-                <el-link underline="underline" :href="metadata._metadataLicense?.id" target="_blank" class="mx-1">
+                <el-link underline="underline"
+                         :underline="true"
+                         type="primary"
+                         :href="metadata._metadataLicense?.id"
+                         target="_blank"
+                         class="mx-1">
                   {{ metadata._metadataLicense?.name || metadata._metadataLicense?.id }}
                 </el-link>
               </h4>
@@ -95,7 +105,7 @@
   </el-row>
 </template>
 <script>
-import {first, isUndefined, isEmpty, reject} from "lodash";
+import {first, isUndefined, isEmpty, reject, sortBy} from "lodash";
 import {defineAsyncComponent} from 'vue';
 import MetaField from "./MetaField.component.vue";
 import LicenseCard from "./cards/LicenseCard.component.vue"
@@ -108,6 +118,7 @@ import MemberOfLink from './widgets/MemberOfLink.component.vue';
 import MetaTopCard from './cards/MetaTopCard.component.vue';
 import SummariesCard from './cards/SummariesCard.component.vue';
 import PropertySummaryCard from './cards/PropertySummaryCard.component.vue'
+import {putLocalStorage} from '@/storage';
 
 export default {
   components: {
@@ -175,6 +186,7 @@ export default {
           }, true);
           const summaries = await this.filter({'_collectionStack.@id': [this.$route.query.id]});
           this.aggregations = summaries.aggregations;
+          putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
         } else {
           await this.$router.push({path: '/404'});
         }
@@ -182,6 +194,9 @@ export default {
     } catch (e) {
       console.error(e)
     }
+  },
+  updated() {
+    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
   },
   methods: {
     first,
@@ -236,13 +251,14 @@ export default {
         }
         this.meta.push({name: filter, data: this.metadata[filter], help: helper});
       }
+      this.meta = sortBy(this.meta, 'name');
     },
     populateLicense() {
       this.license = first(this.metadata?.license);
     },
     async populateBuckets() {
       const items = await this.$elasticService.multi({
-        filters: {'_memberOf.@id': [this.$route.query.id]}
+        filters: {'_memberOf.@id': [this.$route.query.id]}, sort: 'relevance', order: 'desc'
       });
       const aggregations = items?.aggregations;
       this.buckets = []
@@ -254,7 +270,7 @@ export default {
     },
     //TODO: refactor this integrate to multi
     async filter(filters, scroll) {
-      const items = await this.$elasticService.multi({scroll, filters});
+      const items = await this.$elasticService.multi({scroll, filters, sort: 'relevance', order: 'desc'});
       if (items?.hits?.hits.length > 0) {
         return {
           data: items?.hits?.hits,

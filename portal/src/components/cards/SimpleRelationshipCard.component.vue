@@ -3,7 +3,10 @@
     <template v-for="(f, index) of objects" :key="index">
       <ul>
         <li class="font-semibold" v-if="f">
-          <el-link class="ml-2" :href="'/' + objectName + '?id=' + f._id" :underline="true">
+          <el-link class="ml-2"
+                   :underline="true"
+                   type="primary"
+                   :href="'/object?_id=' + f._id">
             {{ first(f._source.name)?.['@value'] || f._id }}
           </el-link>
         </li>
@@ -39,7 +42,7 @@ export default {
         filters: {
           'input.@id': [this.id],
           '@type': [this.objectType]
-        }
+        }, sort: 'relevance', order: 'desc'
       });
       this.objectTotals = items?.['hits']?.['total']?.['value'];
       this.objectsScrollId = items?.['_scroll_id'];

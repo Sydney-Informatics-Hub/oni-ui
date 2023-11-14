@@ -6,9 +6,9 @@
       <div class="p-4">
         <div class="text-gray-600">
           <div class="p-2">
-            <p class="font-medium text-2xl">{{ terms.title }}</p>
+            <p class="font-medium text-2xl">{{ privacy.title }}</p>
           </div>
-          <div class="p-2" v-html="terms.text"></div>
+          <div class="p-2" v-html="privacy.text"></div>
         </div>
       </div>
     </el-row>
@@ -20,7 +20,7 @@
 export default {
   data() {
     return {
-      terms: this.$store.state.configuration.ui.terms,
+      privacy: this.$store.state.configuration.ui.privacy,
     }
   },
   mounted() {

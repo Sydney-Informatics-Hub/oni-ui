@@ -31,7 +31,7 @@ export default {
   methods: {
     async populateBuckets() {
       const items = await this.$elasticService.multi({
-        filters: {'_collectionStack.@id': [this.id]}
+        filters: {'_collectionStack.@id': [this.id]}, sort: 'relevance', order: 'desc'
       });
       const aggregations = items?.aggregations;
       this.buckets = [];

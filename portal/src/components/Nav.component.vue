@@ -1,12 +1,13 @@
 <template>
   <el-menu
+      id="top_menu"
       mode="horizontal"
-      :ellipsis="false"
+      :ellipsis="true"
       :default-active="active"
       :router="true"
   >
-    <el-menu-item index="home" :route="topNavHome">
-      <router-link :to="topNavHome">
+    <el-menu-item index="home" :route="topNavHome + Date.now()">
+      <router-view :key="topNavHome">
         <el-row :gutter="10" class="flex items-center justify-center min-w-md">
           <el-col :span="4">
             <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
@@ -21,17 +22,11 @@
           </span>
           </el-col>
         </el-row>
-      </router-link>
+      </router-view>
     </el-menu-item>
-    <div class="flex-grow"/>
-    <div index="searchBar" v-if="$route.name!='search'" :route="'false'">
-      <div class="py-2">
-      <search-bar ref='searchBar' @populate='populate' v-bind:searchInput="searchInput" @input="onInputChange"
-                  @search="search" :clearSearch="clear" :filters="this.filters"/>
-      </div>
-    </div>
+    <el-menu-item class="flex-auto"/>
     <el-menu-item v-for="topNavItem of topNavItems" :index="topNavItem.route" :router="topNavItem.route">
-      <router-link :to="topNavItem.route">
+      <router-view :key="topNavItem.route">
         <el-row :gutter="10" class="flex items-center justify-center">
           <el-col :span="24">
             <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
@@ -39,7 +34,7 @@
             </div>
           </el-col>
         </el-row>
-      </router-link>
+      </router-view>
     </el-menu-item>
     <el-menu-item index="search" :route="'/search'">
       <router-link to="/search">
@@ -51,21 +46,39 @@
           </el-col>
         </el-row>
       </router-link>
-    </el-menu-item >
-    <el-menu-item index="help" :route="'/help'">
-      <router-link to="/help">
-        <el-row :gutter="10" class="flex items-center justify-center">
-          <el-col :span="24">
-            <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
-              <span>Help</span>
-            </div>
-          </el-col>
-        </el-row>
-      </router-link>
     </el-menu-item>
     <nav-user v-if="isLoginEnabled"/>
+    <el-sub-menu index="help-sub">
+      <template #title class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
+        <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
+          <span>Help</span>
+        </div>
+      </template>
+      <el-menu-item index="help-sub-about" :route="'/about'">
+        <router-link to="/about">
+          About Oni
+        </router-link>
+      </el-menu-item>
+      <el-menu-item index="help-sub-api" :route="'/docs'">
+        <router-link to="/docs">
+          Oni Api docs
+        </router-link>
+      </el-menu-item>
+      <template v-for="helpLink of subHelpLinks">
+        <li class="el-menu-item">
+          <a class="w-full block" :href="helpLink.href" :target="helpLink.target">
+            {{ helpLink.name }}
+          </a>
+        </li>
+      </template>
+    </el-sub-menu>
   </el-menu>
 </template>
+<style>
+.el-menu-item a {
+  display: block;
+}
+</style>
 <script>
 
 import {
@@ -80,10 +93,7 @@ import {defineAsyncComponent, toRaw} from "vue";
 export default {
   name: 'NavView',
   components: {
-    NavUser,
-    SearchBar: defineAsyncComponent(() =>
-        import("@/components/SearchBar.component.vue")
-    )
+    NavUser
   },
   data() {
     return {
@@ -91,8 +101,9 @@ export default {
       showLogo: this.$store.state.configuration.ui?.showLogo,
       showNotebooks: this.$store.state.configuration.ui?.showNotebooks,
       navHeight: this.$store.state.configuration.ui?.navHeight || '50px',
-      topNavHome: this.$store.state.configuration.ui?.topNavHome || '/search',
+      topNavHome: this.$store.state.configuration.ui?.topNavHome || '/search?s=',
       topNavItems: this.$store.state.configuration.ui?.topNavItems || [],
+      subHelpLinks: this.$store.state.configuration.ui?.subHelpLinks || [],
       logo,
       active: '',
       populate: null,
@@ -128,13 +139,11 @@ export default {
   },
   methods: {
     activate: function () {
-      console.log("!@#!@#!@#")
-      console.log(this.$route.name)
       if (this.$route.name === this.topNavHome) {
         this.active = this.topNavHome;
       } else {
         this.active = this.$route.name;
-        console.log(this.active)
+        console.log(`Active Route: ${this.active}`);
       }
     }
   }

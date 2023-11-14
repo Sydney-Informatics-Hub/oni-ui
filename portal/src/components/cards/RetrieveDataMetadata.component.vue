@@ -2,12 +2,16 @@
   <ul>
     <li class="font-semibold">
       <el-link
+          :underline="true"
+          type="primary"
           :href="`/api/object/meta?resolve-parts&noUrid&id=${id}`" download="ro-crate-metadata.json">
         Download metadata
       </el-link>
     </li>
     <li class="font-semibold">
       <el-link
+          :underline="true"
+          type="primary"
           :href="`/api/object/meta?resolve-parts&noUrid&id=${id}`" target="_blank" rel="noreferrer noopener">
         Open metadata in a new window
       </el-link>

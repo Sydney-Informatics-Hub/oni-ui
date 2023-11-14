@@ -1,14 +1,24 @@
 <template>
   <template v-for="(f, index) of buckets" :key="f.field+'_'+index" v-loading="loading">
     <ul>
-      <li v-if="f?.buckets.length > 0">
+      <li v-if="f?.buckets.length > 1">
         <ul>
           <li><span class="font-semibold">{{ f.field }}</span></li>
           <template v-for="bucket of f?.buckets" :key="bucket.key">
             <li v-if="bucket.doc_count > 0" class="ml-4 pl-2">
-              <el-link :underline="false" :href="getSearchUrl(f.name, bucket.key)">{{ bucket.key }}
+              <el-link :underline="true"
+                       type="primary"
+                       :href="getSearchUrl(f.name, bucket.key)">{{ bucket.key }}
                 <!--: {{ bucket.doc_count }}--></el-link>
             </li>
+          </template>
+        </ul>
+      </li>
+      <li v-else-if="f?.buckets.length === 1">
+        <ul>
+          <li><span class="font-semibold">{{ f.field }}</span></li>
+          <template v-for="bucket of f?.buckets" :key="bucket.key">
+            <li class="ml-4 pl-2">{{ bucket.key }}</li>
           </template>
         </ul>
       </li>

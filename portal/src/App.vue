@@ -1,10 +1,10 @@
 <template>
   <router-view/>
+
 </template>
 
 <script>
 import {tokenSessionKey, getLocalStorage, putLocalStorage} from "@/storage";
-
 export default {
   data() {
     return {};

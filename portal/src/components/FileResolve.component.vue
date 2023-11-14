@@ -1,7 +1,7 @@
 <template>
   <el-row :justify="'center'" class="">
     <el-col>
-      <div class="container max-w-screen-lg mx-auto">
+      <div class="container max-screen-lg mx-auto">
         <div v-if="!togglePreview" class="flex justify-center w-full">
           <el-button size="large" round @click="tryDownloadBlob();togglePreview=true">Preview File
           </el-button>
@@ -56,7 +56,7 @@
       </div>
     </el-col>
   </el-row>
-  <el-row class="flex justify-center">
+  <el-row class="flex justify-center" v-show="!loading" v-if="access['hasAccess']">
     <el-button-group class="m-2">
       <el-link v-if="!hideOpenLink" class="mr-2" :href="this.fileUrl" :underline="false">
         <el-button type="default" class="px-2">View File</el-button>
@@ -132,7 +132,8 @@ export default {
     async resolveFile() {
       this.parentId = this.crateId;
       this.path = this.id;
-      this.route = `/object/open?id=${this.crateId}`;
+      this.route = `/object/open?id=${encodeURIComponent(this.crateId)}`;
+
       if (this.path != '') {
         this.route += `&path=${this.path}`;
       }
@@ -188,7 +189,7 @@ export default {
       //TODO: craete some file widgets
       if (this.path && (this.path.endsWith(".txt") || this.path.endsWith(".csv") || this.path.endsWith(".eaf") || this.path.endsWith(".html") || this.path.endsWith(".xml"))) {
         this.type = 'txt';
-        this.data = await this.responseBlob.text();
+        this.data = await this.responseBlob.text({type:'text/plain', endings:'native'});
         if (this.path.endsWith(".csv")) {
           this.tryCSV = true;
         }

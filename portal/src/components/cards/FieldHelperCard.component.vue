@@ -51,7 +51,7 @@ export default {
         const content = await this.$elasticService.single({index: 'vocabs', id});
         if (content && content['_source']) {
           const source = content['_source'];
-          this.definition = first(source?.['rdfs:comment']);
+          this.definition = source?.['rdfs:comment'];
           this.url = id;
         } else {
           id = `schema:${this.meta.id}`;

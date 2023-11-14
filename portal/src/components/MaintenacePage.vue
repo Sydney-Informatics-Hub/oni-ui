@@ -11,10 +11,10 @@
         <div class="flex items-center justify-center">
           <div class="text-center text-sm">
             <p class="text-4xl">{{
-                message || `${window?.title || 'Oni'} is down for maintenance, please come back later`
+                message ||  'Oni is down for maintenance, please come back later'
               }}</p>
             <p class="text-2xl">
-              <el-link @click="this.$router.go(this.$router.currentRoute)">{{ go || 'or try again' }}</el-link>
+              <el-link @click="this.$router.go('/')">{{ go || 'or try again' }}</el-link>
             </p>
           </div>
         </div>
