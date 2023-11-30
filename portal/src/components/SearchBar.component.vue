@@ -32,12 +32,13 @@
           </el-input>
         </label>
       </el-row>
-      <el-row :justify="'center'" :gutter="20" :align="'middle'" class="pt-2">
+      
+      <!-- <el-row :justify="'center'" :gutter="20" :align="'middle'" class="pt-2">
         <el-button @click="showAdvancedSearch"
                    class="cursor-pointer">Advanced Search&nbsp;<span
             class="text-xs text-gray-400 bg-slate-200 shadow rounded-2xl px-2">beta</span>
         </el-button>
-      </el-row>
+      </el-row> -->
     </el-col>
   </el-row>
 </template>

@@ -20,7 +20,7 @@
 export default {
   data() {
     return {
-      terms: this.$store.state.configuration.ui.terms,
+      terms: this.$store.state.configuration.ui.footer.components.terms,
     }
   },
   mounted() {

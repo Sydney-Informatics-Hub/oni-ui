@@ -20,7 +20,7 @@
 export default {
   data() {
     return {
-      privacy: this.$store.state.configuration.ui.privacy,
+      privacy: this.$store.state.configuration.ui.footer.components.privacy,
     }
   },
   mounted() {

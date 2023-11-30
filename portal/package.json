@@ -24,6 +24,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.2",
     "@fortawesome/vue-fontawesome": "^3.0.1",
     "@jbtje/vue3pdf": "^2.0.0",
+    "@syncfusion/ej2-vue-grids": "^23.2.4",
     "@tailwindcss/line-clamp": "^0.4.0",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "convert-size": "^1.2.1",

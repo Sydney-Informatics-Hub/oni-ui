@@ -1,18 +1,22 @@
 <template>
-  <el-row :gutter="0" :offset="0" style="" class="pb-4 pt-0">
-    <el-col :xs="24" :sm="9" :md="9" :lg="7" :xl="7" :offset="0"
-            class="h-full max-h-screen overflow-y-auto flex flex-col h-screen p-2"
-            id="search_aggregation">
-      <div v-show="!advancedSearch"
-           class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
-        <search-bar ref='searchBar' @populate='populate' :searchInput="searchInput"
-                    @search="search" :clearSearch="clear" :filters="this.filters" :fields="searchFields"
-                    class="grow justify-items-center items-center m-4"
-                    @advanced-search="enableAdvancedSearch" :enableAdvancedSearch="advancedSearch"
-                    @updateSearchInput="onInputChange"
-                    @basicSearch="updateRoutes"/>
+  <el-row :gutter="0" :offset="0">
+    <el-col :xs="24" :sm="9" :md="9" :lg="5" :xl="5" :offset="0" class="h-full overflow-y-auto flex flex-col"
+      id="search_aggregation" style="padding-top: 1rem">
+      <div v-show="!advancedSearch" class="flex-1 w-full min-w-full bg-white rounded ">
+        <search-bar ref='searchBar' @populate='populate' :searchInput="searchInput" @search="search" :clearSearch="clear"
+          :filters="this.filters" :fields="searchFields" class="grow justify-items-center items-center m-4"
+          @advanced-search="enableAdvancedSearch" :enableAdvancedSearch="advancedSearch"
+          @updateSearchInput="onInputChange" @basicSearch="updateRoutes" />
+
+        <el-row :justify="'center'" :gutter="20" :align="'middle'" class="pb-2">
+          <el-button-group class="mr-1">
+            <el-button @click="clearFilters()"
+              :style="{ 'background': this.$store.state.configuration.ui.button.backgroundColor }">Reset</el-button>
+          </el-button-group>
+        </el-row>
+
       </div>
-      <div class="flex-1 w-full min-w-full bg-white mt-4 mb-4 border-b-2">
+      <!-- <div class="flex-1 w-full min-w-full bg-white mt-4 mb-4 border-b-2">
         <div class="py-3 px-2">
           <div class="">
             <p class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
@@ -20,201 +24,239 @@
             </p>
           </div>
         </div>
-      </div>
+      </div> -->
       <div class="pt-2">
         <div class="flex w-full" v-for="aggs of aggregations" :key="aggs.name">
-          <ul v-if="aggs?.buckets?.length > 0 && !aggs['hide']"
-              class="flex-1 w-full min-w-full bg-white rounded p-2 mb-4 shadow-md border">
+          <ul v-if="aggs?.buckets?.length > 0 && !aggs['hide']" class="flex-1 w-full min-w-full bg-white p-2"
+            style="border-top: 2px solid black; border-bottom: 2px solid black;">
             <li @click="aggs.active = !aggs.active"
-                class="hover:cursor-pointer py-3 flex md:flex md:flex-grow flex-row justify-between space-x-1">
-                <span class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
-                  {{ aggs.display }}
-                      <el-tooltip v-if="aggs.help"
-                                  class="box-item"
-                                  effect="light"
-                                  trigger="hover"
-                                  :content="aggs.help"
-                                  placement="top"
-                      >
-                      <el-button link>
-                        <font-awesome-icon icon="fa-solid fa-circle-info"/>
-                      </el-button>
-                    </el-tooltip>
-                </span>
+              class="hover:cursor-pointer py-3 flex md:flex md:flex-grow flex-row justify-between space-x-1">
+              <span class="text-xl text-gray-600 dark:text-gray-300 font-semibold py-1 px-2">
+                {{ aggs.display }}
+                <el-tooltip v-if="aggs.help" class="box-item" effect="light" trigger="hover" :content="aggs.help"
+                  placement="top">
+                  <el-button link>
+                    <font-awesome-icon icon="fa-solid fa-circle-info" />
+                  </el-button>
+                </el-tooltip>
+              </span>
               <span class="py-1 px-2">
-                    <font-awesome-icon v-if="aggs.active" icon="fa fa-chevron-down"/>
-                  <span v-else>
-                    <span class="text-xs rounded-full w-32 h-32 text-white bg-purple-500 p-1">{{
-                        aggs?.buckets?.length
-                      }}</span>&nbsp;
-                    <font-awesome-icon icon="fa fa-chevron-right"/>
-                    </span>
-                </span>
+                <font-awesome-icon v-if="aggs.active" icon="fa fa-chevron-up" />
+                <font-awesome-icon v-else="aggs.active" icon="fa fa-chevron-down" />
+              </span>
             </li>
             <li v-if="aggs?.buckets?.length <= 0" class="w-full min-w-full">&nbsp;</li>
-            <search-aggs :buckets="aggs.buckets" :aggsName="aggs.name" :ref="aggs.name"
-                         v-show="aggs.active" @is-active="aggs.active = true"
-                         @changed-aggs="newAggs"/>
+            <search-aggs :buckets="aggs.buckets" :aggsName="aggs.name" :ref="aggs.name" v-show="aggs.active"
+              @is-active="aggs.active = true" @changed-aggs="newAggs" />
           </ul>
         </div>
       </div>
+      <el-row v-show="changedFilters" class="bg-white rounded m-4 p-4 px-8 shadow-md border" role="alert"
+        style="bottom: 16px; z-index: 2044; position: fixed">
+        <el-row class="p-2">
+          <div class="w-full">
+            <el-button-group class="self-center">
+              <el-button @click="clearFilters()">Clear Filters</el-button>
+              <el-button type="warning" @click="updateRoutes({ updateFilters: true })">Apply Filters</el-button>
+            </el-button-group>
+          </div>
+        </el-row>
+      </el-row>
     </el-col>
-    <el-col :xs="24" :sm="15" :md="15" :lg="17" :xl="17" :offset="0"
-            class="max-h-screen overflow-y-auto flex flex-row h-screen p-2 px-3"
-            id="search_results">
+    <el-col :xs="24" :sm="15" :md="15" :lg="19" :xl="19" :offset="0" class="overflow-y-auto flex flex-row p-7"
+      id="search_results" style="border-left: 2px solid black;overflow: initial;">
+
       <div v-show="advancedSearch" id="advanced_search_box"
-           class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
-        <search-advanced :advancedSearch="advancedSearch" :fields="searchFields"
-                         @basic-search="basicSearch"
-                         @do-advanced-search="updateRoutes" :resetAdvancedSearch="resetAdvancedSearch"/>
+        class="flex-1 w-full min-w-full bg-white rounded mt-4 mb-4 shadow-md border">
+        <search-advanced :advancedSearch="advancedSearch" :fields="searchFields" @basic-search="basicSearch"
+          @do-advanced-search="updateRoutes" :resetAdvancedSearch="resetAdvancedSearch" />
       </div>
-      <div class="pr-0">
-        <div class="top-20 z-10 bg-white pb-5">
-          <el-row :align="'middle'" class="mt-4 pb-2 border-0 border-b-[2px] border-solid border-red-700 text-2xl">
-            <el-button-group class="mr-1">
-              <el-button type="warning" v-show="changedFilters" @click="updateRoutes({updateFilters: true})">Apply
-                Filters
-              </el-button>
-            </el-button-group>
-            <span class="my-1 mr-1" v-show="!changedFilters" v-if="!isEmpty(this.filters)">Filtering by:</span>
-            <el-button-group v-show="!changedFilters"
-                             class="my-1 mr-2" v-for="(filter, filterKey) of this.filters" :key="filterKey"
-                             v-model="this.filters">
-              <el-button plain>{{ clean(filterKey) }}</el-button>
-              <el-button v-if="filter && filter.length > 0" v-for="f of filter" :key="f" color="#626aef" plain
-                         @click="this.updateFilters({clear: {f, filterKey }})" class="text-2xl">
-                {{ clean(f) }}
-                <el-icon class="el-icon--right">
-                  <CloseBold/>
-                </el-icon>
-              </el-button>
-            </el-button-group>
-            <el-button-group class="mr-1">
-              <el-button v-show="!isEmpty(this.filters)" @click="clearFilters()">Clear Filters</el-button>
-            </el-button-group>
-            <span id="total_results"
-                  class="my-1 mr-2" v-show="this.totals['value']">Total: <span>{{ this.totals['value'] }} Index entries (Collections, Objects, Files and Notebooks)</span></span>
-          </el-row>
-          <el-row class="pt-2">
-            <el-col :span="24" class="flex space-x-4">
+
+      <div class="top-20 z-10 bg-white pb-5" style="margin-left: 2%; font-size: 17px;">
+
+        <div class="flex" style="justify-content: space-between;">
+
+          <div class="flex">
+            <span id="total_results" class="my-1" v-show="this.totals['value']"><span>{{ this.totals['value']
+            }} results</span></span>
+
+            <div style="padding-top: 4px;">
+              <label class="radio pl-2" v-for="viewKey in viewKeys" :key="viewKey">
+                <input type="radio" :name="`typeFilter-${viewKey}`" @click="switchView(viewKey)"
+                  :checked="currentView === viewKey">
+                <span class="label-body pl-1">{{ viewKey.charAt(0).toUpperCase() + viewKey.slice(1) }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div v-if="currentView === 'list'" class="flex mr-3">
+            <img v-for="option in viewConfig.options.list.options" :key="option.name"
+              :src="require(`@/assets/${option.icon}`)" @click="switchSubView('list', option.name)"
+              :class="{ active: currentListView === option.name }" style="width: 40px; height: 40px; cursor: pointer;">
+          </div>
+
+          <div v-else-if="currentView === 'map'" class="flex mr-3">
+            <img v-for="option in viewConfig.options.map.options" :key="option.name"
+              :src="require(`@/assets/${option.icon}`)" @click="switchSubView('map', option.name)"
+              :class="{ active: currentMapView === option.name }" style="width: 40px; height: 40px; cursor: pointer;">
+          </div>
+
+        </div>
+
+        <!-- <el-row :align="'middle'" class="pb-2 border-0 text-2xl pt-1">
+          <el-button-group class="mr-1">
+            <el-button type="warning" v-show="changedFilters" @click="updateRoutes({ updateFilters: true })">Apply
+              Filters
+            </el-button>
+          </el-button-group>
+          <span class="my-1 mr-1" v-show="!changedFilters" v-if="!isEmpty(this.filters)">Filtering by:</span>
+          <el-button-group v-show="!changedFilters" class="my-1 mr-2" v-for="(filter, filterKey) of this.filters"
+            :key="filterKey" v-model="this.filters">
+            <el-button plain>{{ clean(filterKey) }}</el-button>
+            <el-button v-if="filter && filter.length > 0" v-for="f of filter" :key="f" color="#626aef" plain
+              @click="this.updateFilters({ clear: { f, filterKey } })" class="text-2xl">
+              {{ clean(f) }}
+              <el-icon class="el-icon--right">
+                <CloseBold />
+              </el-icon>
+            </el-button>
+          </el-button-group>
+          <el-button-group class="mr-1">
+            <el-button v-show="!isEmpty(this.filters)" @click="clearFilters()">Clear Filters</el-button>
+          </el-button-group>
+          <span id="total_results" class="my-1 mr-2" v-show="this.totals['value']"><span>{{ this.totals['value']
+          }} results</span></span>
+        </el-row> -->
+        <el-row v-if="currentView === 'list'" class="pt-2">
+          <el-col :span="24" class="flex space-x-4">
+
+            <div v-show="currentListView !== 'table'">
               <el-button-group class="my-1">
-                <el-button type="default" v-on:click="this.resetSearch">RESET SEARCH</el-button>
+                <el-button type="default" v-on:click="this.resetSearch" :style="{ 'background' : this.$store.state.configuration.ui.button.backgroundColor }">Reset sort</el-button>
               </el-button-group>
-              <el-select v-model="selectedSorting" @change="sortResults" class="my-1">
+              <el-select v-model="selectedSorting" @change="sortResults" class="my-1 ml-2">
                 <template #prefix>Sort by:</template>
-                <el-option
-                    v-for="item in sorting"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                />
+                <el-option v-for="item in sorting" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
-              <el-select v-model="selectedOrder" @change="orderResults" class="my-1">
+              <el-select v-model="selectedOrder" @change="orderResults" class="my-1 ml-2">
                 <template #prefix>Order by:</template>
-                <el-option
-                    v-for="item in ordering"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                />
+                <el-option v-for="item in ordering" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
-            </el-col>
-          </el-row>
+            </div>
+
+            <el-button-group class="my-1">
+              <el-button type="default" v-on:click="this.downloadCSV" :style="{ 'background' : this.$store.state.configuration.ui.button.backgroundColor }">Download CSV</el-button>
+            </el-button-group>
+
+          </el-col>
+        </el-row>
+      </div>
+
+      <div v-if="viewConfig.options['map'] && currentView === 'map'" class="map-view" style="padding-left: 6%;">
+        <div v-show="journeyLatlngs.length > 0 && currentMapView === 'journey'">
+          <MappableLocation :key="mapKey" :latlngs="journeyLatlngs" mapType="journey" height="80vh" width="96%" />
         </div>
-        <div class="py-0 w-full">
-          <el-pagination class="items-center w-full"
-                         background layout="prev, pager, next"
-                         :total="totals['value']"
-                         v-model:page-size="pageSize"
-                         @update:page-size="pageSize"
-                         v-model:currentPage="currentPage"
-                         @current-change="updatePages($event, 'top_menu')"/>
+        <div v-show="latlngs.length > 0 && currentMapView === 'cluster'">
+          <MappableLocation :key="mapKey" :latlngs="latlngs" mapType="cluster" height="80vh" width="96%" />
         </div>
-        <div v-for="item of this.items" :key="item._id"
-             class="z-0 mt-0 mb-4 w-full"
-             v-loading="loading">
-          <search-detail-element v-if="item._source" :id="item._source['@id']" :href="getSearchDetailUrl(item)"
-                                 :name="first(item._source.name)?.['@value'] || first(first(item._source.identifier)?.value)?.['@value']"
-                                 :conformsTo="item.conformsTo" :types="item._source?.['@type']"
-                                 :_memberOf="item._source?._memberOf" :highlight="item?.highlight"
-                                 :root="item._source?._root"
-                                 :parent="item._source?._parent" :aggregations="aggregations"
-                                 :details="item._source" :score="item._score"/>
+        <div v-show="dateLatlngs.length > 0 && currentMapView === 'timeline'">
+          <MappableLocation :key="mapKey" :latlngs="dateLatlngs" mapType="timeline" height="80vh" width="96%" />
         </div>
-        <div v-loading="loading" v-if="!this.items.length > 0">
-          <el-row class="pb-4 items-center">
-            <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
-              <span v-if="!loading">No items found</span>
-            </h5>
-          </el-row>
-          <el-row>
-            <p class="text-center">
-              <el-button type="primary" v-on:click="this.resetSearch">RESTART SEARCH</el-button>
-            </p>
-          </el-row>
+      </div>
+
+      <div v-show="viewConfig.options['list'] && currentView === 'list'" class="list-view">
+        <div v-show="currentListView === 'tile'" class="archive-list">
+          <template v-for="item of this.items" :key="item._id" class="mb-4">
+            <SearchTile v-if="item._source" :id="item._source['@id']" :href="getSearchDetailUrl(item)"
+              :name="first(item._source.name)?.['@value'] || first(first(item._source.identifier)?.value)?.['@value']"
+              :conformsTo="item.conformsTo" :types="item._source?.['@type']" :_memberOf="item._source?._memberOf"
+              :highlight="item?.highlight" :root="item._source?._root" :parent="item._source?._parent"
+              :aggregations="aggregations" :details="item._source" :score="item._score"
+              :colorMap="viewConfig.options.list.options[0].color" />
+          </template>
         </div>
-        <el-row v-if="noMoreResults" class="flex justify-center p-6">
-          <h5 class="mb-2 text-1xl tracking-tight dark:text-white">
-            No more items found with that filter or search query
+
+        <div v-show="currentListView === 'table'" class="table-list mb-6">
+          <SearchTable :items="allItems" :properties="getViewProperties('list', 'table', 'properties')"
+            :pageSize="getViewProperties('list', 'table', 'pageSize')" :allItem="allItems" />
+        </div>
+
+        <div v-show="currentListView === 'detail'">
+          <template v-for="item of this.items" :key="item._id" class="mb-4">
+            <search-detail-element v-if="item._source" :id="item._source['@id']" :href="getSearchDetailUrl(item)"
+              :name="first(item._source.name)?.['@value'] || first(first(item._source.identifier)?.value)?.['@value']"
+              :conformsTo="item.conformsTo" :types="item._source?.['@type']" :_memberOf="item._source?._memberOf"
+              :highlight="item?.highlight" :root="item._source?._root" :parent="item._source?._parent"
+              :aggregations="aggregations" :details="item._source" :score="item._score" />
+          </template>
+        </div>
+
+        <div v-show="currentListView !== 'table'" class="py-2 w-full" style="margin-left: 4%;">
+          <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="totals['value']"
+            v-model:page-size="pageSize" @update:page-size="pageSize" v-model:currentPage="currentPage"
+            @current-change="updatePages($event, 'total_results')"  />
+        </div>
+      </div>
+
+      <div v-loading="loading" v-if="!this.items.length > 0">
+        <el-row class="pb-4 items-center">
+          <h5 class="mb-2 text-2xl tracking-tight dark:text-white">
+            <span v-if="!loading">No items found</span>
           </h5>
         </el-row>
-        <div class="py-2 w-full">
-          <el-pagination class="items-center w-full"
-                         background layout="prev, pager, next"
-                         :total="totals['value']"
-                         v-model:page-size="pageSize"
-                         @update:page-size="pageSize"
-                         v-model:currentPage="currentPage"
-                         @current-change="updatePages($event, 'total_results')"/>
-        </div>
+        <el-row>
+          <p class="text-center">
+            <el-button type="primary" v-on:click="this.resetSearch">RESTART SEARCH</el-button>
+          </p>
+        </el-row>
       </div>
+      <el-row v-if="noMoreResults" class="flex justify-center p-6">
+        <h5 class="mb-2 text-1xl tracking-tight dark:text-white">
+          No more items found with that filter or search query
+        </h5>
+      </el-row>
     </el-col>
   </el-row>
+
   <el-dialog v-model="errorDialogVisible" width="40%" center>
     <el-alert title="Error" type="warning" :closable="false">
       <p class="break-normal">{{ this.errorDialogText }}</p>
     </el-alert>
     <template #footer>
-        <span class="dialog-footer">
-          <el-button type="primary" @click="errorDialogVisible = false">Close</el-button>
-        </span>
+      <span class="dialog-footer">
+        <el-button type="primary" @click="errorDialogVisible = false">Close</el-button>
+      </span>
     </template>
   </el-dialog>
-  <el-row v-show="changedFilters"
-          class="bg-white rounded m-4 p-4 px-8 shadow-md border"
-          role="alert"
-          style="bottom: 16px; z-index: 2044; position: fixed">
-    <el-row class="p-2">
-      <div class="w-full">
-        <el-button-group class="self-center">
-          <el-button @click="clearFilters()">Clear Filters</el-button>
-          <el-button type="warning" @click="updateRoutes({updateFilters: true})">Apply Filters</el-button>
-        </el-button-group>
-      </div>
-    </el-row>
-  </el-row>
-  <el-row></el-row>
 </template>
 
 
 <script>
 
-import {first, last, isEmpty, orderBy, toArray, find, isUndefined} from 'lodash';
-import {CloseBold} from "@element-plus/icons-vue";
-import {defineAsyncComponent, toRaw} from "vue";
+import { first, last, isEmpty, orderBy, toArray, find, isUndefined } from 'lodash';
+import { CloseBold } from "@element-plus/icons-vue";
+import { defineAsyncComponent, toRaw } from "vue";
 import SearchDetailElement from './SearchDetailElement.component.vue';
+import SearchTable from './SearchTable.component.vue';
+import SearchTile from './SearchTile.component.vue';
 import SearchAggs from './SearchAggs.component.vue';
-import {putLocalStorage, getLocalStorage, removeLocalStorage} from '@/storage';
+import { putLocalStorage, getLocalStorage, removeLocalStorage } from '@/storage';
 import SearchAdvanced from "./SearchAdvanced.component.vue";
-import {v4 as uuid} from 'uuid';
+import { readValue } from "@/generalFunctions";
+import { v4 as uuid } from 'uuid';
 
 export default {
   components: {
     SearchBar: defineAsyncComponent(() =>
-        import("@/components/SearchBar.component.vue")
+      import("@/components/SearchBar.component.vue")
+    ),
+    MappableLocation: defineAsyncComponent(() =>
+      import('@/components/MappableLocation.component.vue')
     ),
     SearchAdvanced,
     SearchDetailElement,
+    SearchTable,
+    SearchTile,
     CloseBold,
     SearchAggs
   },
@@ -222,8 +264,16 @@ export default {
     return {
       searchInput: '',
       items: [],
+      allItems: [],
+      latlngs: [],
+      journeyLatlngs: [],
+      dateLatlngs: [],
+      currentView: '',
+      currentListView: '',
+      currentMapView: '',
+      mapKey: 0,
       totals: {},
-      pageSize: 10,
+      pageSize: 36,
       currentPage: 1,
       more: false,
       aggregations: {},
@@ -246,22 +296,27 @@ export default {
       noMoreResults: false,
       searchFields: this.$store.state.configuration.ui.searchFields,
       sorting: [
-        {value: 'relevance', label: 'Relevance'},
-        {value: '_isTopLevel.@value.keyword', label: 'Collections'}
+        { value: 'relevance', label: 'Relevance' },
+        { value: '_isTopLevel.@value.keyword', label: 'Collections' },
+        { value: 'name.@value.keyword', label: 'Title' },
+        { value: 'inLanguage.name.@value.keyword', label: 'Language' },
       ],
       selectedSorting: null,
-      defaultSorting: {value: 'relevance', label: 'Relevance'},
+      defaultSorting: { value: 'relevance', label: 'Relevance' },
       ordering: [
-        {value: 'asc', label: 'Ascending'},
-        {value: 'desc', label: 'Descending'}
+        { value: 'asc', label: 'Ascending' },
+        { value: 'desc', label: 'Descending' }
       ],
-      selectedOrder: {value: 'desc', label: 'Descending'},
+      selectedOrder: { value: 'desc', label: 'Descending' },
       searchFrom: 0,
       selectedOperation: 'must',
       changedFilters: false,
       advancedSearch: false,
       advancedQueries: null,
-      resetAdvancedSearch: false
+      resetAdvancedSearch: false,
+      viewConfig: this.$store.state.configuration.ui.view,
+      csvHeader: {},
+      csvConfig: this.$store.state.configuration.ui.csv,
     };
   },
   watch: {
@@ -278,12 +333,13 @@ export default {
           this.updateAdvancedQueries();
         }
         await this.search();
+        await this.searchAll();
+        this.mapKey++;
       }
       this.loading = false;
     }
   },
   async created() {
-    console.log('created');
     this.isStart = true;
     await this.updateFilters({});
     if (this.$route.query.q) {
@@ -293,25 +349,19 @@ export default {
       this.updateAdvancedQueries();
     } else {
       this.advancedSearch = false;
-      removeLocalStorage({key: 'advancedQueries'});
+      removeLocalStorage({ key: 'advancedQueries' });
     }
     this.loading = true;
-    // const aggregations = await this.$elasticService.multi({
-    //   multi: '',
-    //   filters: {},
-    //   sort: this.sorting[0].value,
-    //   order: 'desc',
-    //   operation: 'must',
-    //   pageSize: 10,
-    //   searchFrom: 0
-    // });
-    // this.aggregations = this.populateAggregations(aggregations['aggregations']);
     await this.search();
+    await this.searchAll();
     this.loading = false;
-    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   async mounted() {
-    console.log('mounted');
+    this.currentView = this.viewConfig.default;
+    this.currentListView = this.viewConfig.options?.list?.default;
+    this.currentMapView = this.viewConfig.options?.map?.default;
+
     await this.updateFilters({});
     if (this.$route.query.o) {
       this.selectedOperation = this.$route.query.o;
@@ -326,19 +376,18 @@ export default {
     }
   },
   async updated() {
-    console.log('updated');
     if (this.$route.query.q) {
       this.advancedSearch = false;
     }
     // await this.updateFilters({});
-    putLocalStorage({key: 'lastRoute', data: this.$route.fullPath});
+    putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
   },
   methods: {
     toArray,
     first,
     isEmpty,
     isUndefined,
-    async updateFilters({clear, empty}) {
+    async updateFilters({ clear, empty }) {
       try {
         // updating filters from command
         if (clear?.f && clear?.filterKey) {
@@ -348,7 +397,7 @@ export default {
               delete this.filters[clear.filterKey];
             }
             //if there is an update on the filter the site will do another search.
-            await this.updateRoutes({updateFilters: true});
+            await this.updateRoutes({ updateFilters: true });
           }
         } else {
           // or updating filters from routes
@@ -371,7 +420,7 @@ export default {
         console.error(e);
       }
     },
-    async updateRoutes({queries, updateFilters}) {
+    async updateRoutes({ queries, updateFilters }) {
       let filters;
       const query = {};
       let localFilterUpdate = false;
@@ -404,7 +453,7 @@ export default {
         query.q = this.searchInput;
       }
       query.r = uuid();
-      await this.$router.push({path: 'search', query, replace: true});
+      await this.$router.push({ path: 'search', query, replace: true });
     },
     updateAdvancedQueries() {
       this.advancedSearch = true;
@@ -415,16 +464,16 @@ export default {
         throw new Error('There was a problem with your advanced query please try again');
       }
       let queryString = this.$elasticService.queryString(searchGroup);
-      this.advancedQueries = {queryString, searchGroup};
+      this.advancedQueries = { queryString, searchGroup };
     },
-    async bucketSelected({checkedBuckets, id}) {
+    async bucketSelected({ checkedBuckets, id }) {
       // this.filters[id] = checkedBuckets.map((k) => {
       //   return {key: k}
       // });
       this.filters[id] = checkedBuckets;
-      await this.updateRoutes({updateFilters: true});
+      await this.updateRoutes({ updateFilters: true });
     },
-    populate({items, newSearch, aggregations}) {
+    populate({ items, newSearch, aggregations }) {
       this.items = [];
       if (newSearch) {
         this.newSearch = true;
@@ -459,8 +508,14 @@ export default {
         const hide = info?.hide;
         const active = info?.active;
         const help = info?.help;
+
+        const buckets = aggregations[agg]?.buckets || aggregations[agg]?.values?.buckets;
+        if (info?.sortBy === 'name') {
+          buckets.sort((a, b) => (a.key > b.key) ? 1 : (a.key < b.key) ? -1 : 0);
+        }
+
         a[agg] = {
-          buckets: aggregations[agg]?.buckets || aggregations[agg]?.values?.buckets,
+          buckets: buckets,
           display: display || agg,
           order: order || 0,
           name: name || agg,
@@ -500,11 +555,10 @@ export default {
       await this.clearAggregations();
       // await this.search();
       const query = {};
-      await this.$router.push({path: 'search', query});
+      await this.$router.push({ path: 'search', query });
     },
     scrollToTop() {
       setTimeout(function () {
-        console.log('ran scrolling to top')
         document.body.scrollTop = 0; // For Safari
         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
         window.scrollTo(0, 0);
@@ -522,7 +576,7 @@ export default {
         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
         window.scrollTo(0, 0);
         const element = document.getElementById(id);
-        element.scrollIntoView({behavior: 'smooth'});
+        element.scrollIntoView({ behavior: 'smooth' });
         element.scrollTop = 0;
       }, 100);
     },
@@ -533,7 +587,7 @@ export default {
         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
         window.scrollTo(0, 0);
         const element = document.querySelector(selector);
-        element.scrollIntoView({behavior: 'smooth'});
+        element.scrollIntoView({ behavior: 'smooth' });
         element.scrollTop = 0;
       }, 100);
     },
@@ -588,8 +642,113 @@ export default {
           searchFrom: (this.currentPage - 1) * this.pageSize,
           queries: this.advancedQueries
         });
-        this.populate({items: this.items, newSearch: true, aggregations: this.aggregations});
+        this.populate({ items: this.items, newSearch: true, aggregations: this.aggregations });
         this.loading = false;
+      } catch (e) {
+        this.errorDialogVisible = true;
+        this.errorDialogText = e.message;
+        this.loading = false;
+      }
+    },
+    async searchAll() {
+      this.loading = true;
+      let order = this.selectedOrder.value ?? this.selectedOrder;
+      try {
+        let items = await this.$elasticService.multi({
+          multi: this.searchInput,
+          filters: toRaw(this.filters),
+          searchFields: this.searchFields,
+          sort: this.selectedSorting,
+          order: order,
+          operation: this.selectedOperation,
+          pageSize: 100000,
+          searchFrom: 0,
+          queries: this.advancedQueries
+        });
+        this.loading = false;
+        this.latlngs = [];
+        this.journeyLatlngs = [];
+        this.csvHeader = new Set();
+        //MUFENg . use category for mapping
+        let colorMap = this.viewConfig.options.map.color.map;
+
+        if (items?.['hits']) {
+          const thisItems = items['hits']['hits'];
+          this.allItems = thisItems;
+          if (thisItems.length > 0) {
+            for (let item of thisItems) {
+
+
+              if (!item['_source']['@type'].includes('RepositoryCollection')) {
+
+                if (item['_source']) {
+                  Object.keys(item['_source']).forEach((key) => {
+                    if (!this.csvConfig.exclude.includes(key)) {
+                      this.csvHeader.add(key);
+                    }
+                  });
+                }
+
+                let color = colorMap['default'];
+
+                if (item['_source']['category']) {
+                  if (colorMap[item['_source']['category'][0]['@id']]) {
+                    color = colorMap[item['_source']['category'][0]['@id']];
+                  }
+                }
+
+                //MUfeng . check subview
+                if (item['_source']['_geolocation']) {
+                  let geoCoordinates = item['_source']['_geolocation'][0][0][0];
+                  if (geoCoordinates) {
+                    this.latlngs.push(
+                      {
+                        latitude: geoCoordinates['latitude'],
+                        longitude: geoCoordinates['longitude'],
+                        color: color
+                      }
+                    );
+                  }
+                }
+
+                if (item['_source']['_journeyGeolocation']) {
+                  let journeyGeoLocation = item['_source']['_journeyGeolocation'][0];
+                  if (journeyGeoLocation) {
+                    let journeycoordinates = [];
+                    for (let journeyGeo of journeyGeoLocation) {
+                      journeycoordinates.push(
+                        {
+                          latitude: journeyGeo[0]['latitude'],
+                          longitude: journeyGeo[0]['longitude'],
+                          color: color
+                        }
+                      );
+                    }
+                    this.journeyLatlngs.push(journeycoordinates);
+                  }
+                }
+
+                if (item['_source']['_dateGeolocation']) {
+                  let dateGeoLocation = item['_source']['_dateGeolocation'][0][0][0];
+                  if (dateGeoLocation) {
+                    this.dateLatlngs.push(
+                      {
+                        latitude: dateGeoLocation['latitude'],
+                        longitude: dateGeoLocation['longitude'],
+                        datestart: dateGeoLocation['datestart'],
+                        dateend: dateGeoLocation['dateend'],
+                        udatestart: dateGeoLocation['udatestart'],
+                        udateend: dateGeoLocation['udateend'],
+                        color: color
+                      }
+                    );
+                  }
+                }
+
+              }
+            }
+          };
+        }
       } catch (e) {
         this.errorDialogVisible = true;
         this.errorDialogText = e.message;
@@ -643,23 +802,26 @@ export default {
     sortResults(sort) {
       this.currentPage = 1;
       this.selectedSorting = sort;
+      console.log("Mufeng SortResults");
       this.search();
     },
     orderResults(order) {
       this.currentPage = 1;
       this.selectedOrder = order;
+      console.log("Mufeng OrderResults");
       this.search();
     },
     async updatePages(page, scrollTo) {
       this.currentPage = page;
+      console.log("Mufeng UpdatePages");
       await this.search();
       this.scrollToTop();//Id(scrollTo);
     },
     async clearFilters() {
       this.filters = {};
-      await this.updateRoutes({updateFilters: true});
+      await this.updateRoutes({ updateFilters: true });
     },
-    newAggs({query, aggsName}) {
+    newAggs({ query, aggsName }) {
       if (query.f) {
         //In here we need to merge the filters
         const decodedFilters = JSON.parse(decodeURIComponent(query.f));
@@ -694,12 +856,78 @@ export default {
       console.log('is this.filters empty?');
       console.log(isEmpty(this.filters))
       // this.filters = filters;
+    },
+    switchView(view) {
+      if (view in this.viewConfig.options) {
+        this.currentView = view;
+      }
+    },
+    switchSubView(mainView, subView) {
+      if (mainView === 'list') {
+        this.currentListView = subView;
+      } else if (mainView === 'map') {
+        this.currentMapView = subView;
+      }
+    },
+    downloadCSV() {
+      let headerRows = Array.from(this.csvHeader);
+      let csvContent = '"' + headerRows.join('","') + '"\n';
+
+      this.allItems.forEach(item => {
+        if (!item['_source']['@type'].includes('RepositoryCollection')) {
+          let row = headerRows.map(key => {
+            let value = readValue(item['_source'], key);
+            if (value.length === 0) {
+              return "";
+            } else {
+              value = value.join(", ");
+            }
+            return `"${value.replace(/"/g, '""')}"`;
+          }).join(",");
+
+          csvContent += row + "\n";
+        }
+      });
+
+      let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      let link = document.createElement("a");
+      let url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "export.csv");
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
+    getViewProperties(mainViewName, subViewName, proppertyName) {
+      const viewOpiton = this.viewConfig.options[mainViewName]?.options.find(option => option.name === subViewName);
+      return viewOpiton ? viewOpiton[proppertyName] : null;
     }
+  },
+  computed: {
+    viewKeys() {
+      return Object.keys(this.viewConfig.options);
+    },
   }
 };
+
 </script>
+
 <style>
 html {
   scroll-behavior: smooth;
 }
+
+.archive-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-bottom: 2em;
+  justify-content: center;
+}
+
+.active {
+  background-color: lightskyblue;
+}
+
 </style>

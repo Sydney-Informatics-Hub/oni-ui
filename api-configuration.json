@@ -1,6 +1,6 @@
 {
   "ui": {
-    "siteName": "Oni",
+    "siteName": "Oni??",
     "siteNameX": "Discovery",
     "publicPath": "http://localhost:11000/",
     "title": "Oni Discovery Portal",
@@ -11,20 +11,36 @@
     "help": {
       "mainText": "For access please email help@example.com"
     },
-    "terms": {
-      "text": "Example terms of service",
-      "href":"/terms",
-      "title": "Terms of Service"
-    },
     "email": {
       "help": "help@example.com"
     },
+    "header": {
+      "logo": "omaa-icon.svg",
+      "text": "Opening the Multilingual Archive of Australia",
+      "backgroundColor": "#8FB698"
+    },
     "footer": {
-      "copyright": "Example Group",
-      "link": {
-        "href": "https://example.com",
-        "text": "Oni"
+      "backgroundColor": "#3D3D3D",
+      "textColor": "white",
+      "components": {
+        "terms": {
+          "title": "Terms of Service",
+          "href": "/terms",
+          "text": "Example terms of service"
+        },
+        "privacy": {
+          "title": "Privacy Policy",
+          "href": "/privacy",
+          "text": "Example privacy policy"
+        },
+        "Acknowledgement": {
+          "title": "Acknowledgement of country",
+          "href": "/"
+        }
       }
+    },
+    "button": {
+      "backgroundColor": "#8FB698"
     },
     "login": {
       "enabled": true
@@ -49,15 +65,17 @@
       "enforced": false,
       "URL": "https://registry-test.ldaca.edu.au/registry/co_petitions/start/coef:9"
     },
-    "topNavItems": [ {
-      "route": "/search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%257D",
-      "display": "Collections"
-    }],
+    "topNavItems": [
+      {
+        "route": "/search?f=%257B%2522%2540type%2522%253A%255B%2522RepositoryCollection%2522%255D%257D",
+        "display": "Collections"
+      }
+    ],
     "main": {
       "fields": [
         {
           "display": "Language",
-          "name": "language.name.@value"
+          "name": "inLanguage.name.@value"
         },
         {
           "display": "Key Periods",
@@ -80,13 +98,8 @@
           "name": "encodingFormat.@value"
         }
       ],
-      "byteFields": [
-        "size",
-        "contentSize"
-      ],
-      "expand": [
-        "speaker", "author"
-      ]
+      "byteFields": ["size", "contentSize"],
+      "expand": ["speaker", "author"]
     },
     "collection": {
       "name": {
@@ -130,6 +143,16 @@
       }
     },
     "object": {
+      "default": "new",
+      "options": {
+        "new": {
+          "icon": "new.svg",
+          "iframe": ["url"]
+        },
+        "old": {
+          "icon": "old.svg"
+        }
+      },
       "name": {
         "display": "Name",
         "name": "name"
@@ -169,7 +192,8 @@
           "_metadataIsPublic",
           "_metadataLicense"
         ]
-      }
+      },
+      "iframe": ["url"]
     },
     "file": {
       "meta": {
@@ -265,7 +289,155 @@
         "url": "https://schema.org/annotationType",
         "definition": "Dear Data Team, please add description"
       }
-    ]
+    ],
+    "view": {
+      "default": "list",
+      "options": {
+        "list": {
+          "default": "tile",
+          "options": [
+            {
+              "name": "tile",
+              "icon": "tile-view.svg",
+              "title": "Tile View",
+              "properties": [
+                "name",
+                "types",
+                "inLanguage",
+                "_memberOf",
+                "currentHolder"
+              ],
+              "color": {
+                "field": "category",
+                "map": {
+                  "default": "#301934",
+                  "#term_10048": "#D45135",
+                  "#term_10047": "#FFB301",
+                  "#term_10049": "#661811",
+                  "#term_10050": "#222020",
+                  "#term_10044": "#0054A3",
+                  "#term_10046": "#1F6D30"
+                }
+              }
+            },
+            {
+              "name": "table",
+              "icon": "table-view.svg",
+              "title": "Table View",
+              "pageSize": 48,
+              "properties": [
+                {
+                  "name": "name",
+                  "display": "Name",
+                  "width": 300,
+                  "visible": true
+                },
+                {
+                  "name": "@type",
+                  "display": "Type",
+                  "width": 100,
+                  "visible": true
+                },
+                {
+                  "name": "inLanguage",
+                  "display": "Language",
+                  "width": 100,
+                  "visible": true
+                },
+                {
+                  "name": "_memberOf",
+                  "display": "Details",
+                  "width": 100,
+                  "visible": true
+                },
+                {
+                  "name": "currentHolder",
+                  "display": "Current Holder",
+                  "width": 200,
+                  "visible": false
+                },
+                {
+                  "name": "country",
+                  "display": "Country",
+                  "width": 100,
+                  "visible": false
+                },
+                {
+                  "name": "subject",
+                  "display": "Subject",
+                  "width": 100,
+                  "visible": true
+                }
+              ]
+            },
+            {
+              "name": "detail",
+              "icon": "detail-view.svg",
+              "title": "Detail View"
+            }
+          ]
+        },
+        "map": {
+          "default": "cluster",
+          "options": [
+            {
+              "name": "journey",
+              "icon": "journey-map-view.svg",
+              "title": "Journey map View",
+              "properties": []
+            },
+            {
+              "name": "cluster",
+              "icon": "cluster-map-view.svg",
+              "title": "Cluster map View",
+              "properties": []
+            },
+            {
+              "name": "timeline",
+              "icon": "timeline-map-view.svg",
+              "title": "TimeLine map View",
+              "properties": []
+            }
+          ],
+          "color": {
+            "field": "category",
+            "map": {
+              "default": "#301934",
+              "#term_10048": "#D45135",
+              "#term_10047": "#FFB301",
+              "#term_10049": "#661811",
+              "#term_10050": "#222020",
+              "#term_10044": "#0054A3",
+              "#term_10046": "#1F6D30"
+            }
+          }
+        }
+      }
+    },
+    "csv": {
+      "exclude": [
+        "_geolocation",
+        "_dateGeolocation",
+        "_journeyGeolocation",
+        "_access",
+        "_root",
+        "_collectionStack",
+        "_metadataIsPublic",
+        "_metadataLicense",
+        "targetRecordPointerINTERNALUSEONLY",
+        "sourceRecordPointerINTERNALUSEONLY",
+        "relationshipTypeINTERNALUSEONLY",
+        "_memberOf",
+        "_subCollection",
+        "_mainCollection",
+        "parentEntityRESERVEDDONOTADDTOFORMS",
+        "contactPoint",
+        "typeOfEvent",
+        "honorificPrefix",
+        "digitisationFormat",
+        "image"
+      ]
+    }
   },
   "api": {
     "bootstrap": false,
@@ -287,14 +459,10 @@
     },
     "rocrate": {
       "dataTransform": {
-        "types": [
-          "File"
-        ]
+        "types": ["File"]
       }
     },
-    "administrators": [
-      "ephe@feko.mt"
-    ],
+    "administrators": ["ephe@feko.mt"],
     "session": {
       "lifetime": {
         "hours": 5
@@ -446,7 +614,8 @@
           "display": "Access",
           "order": 2,
           "name": "license.name.@value",
-          "field": "license.name.@value.keyword"
+          "field": "license.name.@value.keyword",
+          "sortBy": "frequency"
         },
         {
           "display": "Record Type",
@@ -457,46 +626,83 @@
         {
           "display": "Language",
           "order": 4,
-          "name": "language.name.@value",
-          "field": "language.name.@value.keyword"
+          "name": "inLanguage.name.@value",
+          "field": "inLanguage.name.@value.keyword"
         },
         {
-          "display": "Key Period",
+          "display": "Category",
           "order": 5,
           "name": "category.name.@value",
-          "field": "category.name.@value.keyword"
+          "field": "category.name.@value.keyword",
+          "sortBy": "name"
+        },
+        {
+          "display": "Current Holder",
+          "order": 6,
+          "name": "currentHolder.name.@value",
+          "field": "currentHolder.name.@value.keyword",
+          "help": "The Current Holder."
+        },
+        {
+          "display": "Subject",
+          "order": 7,
+          "name": "subject.name.@value",
+          "field": "subject.name.@value.keyword",
+          "help": "The Subject.",
+          "sortBy": "name"
+        },
+        {
+          "display": "Country of Origin",
+          "order": 8,
+          "name": "country.name.@value",
+          "field": "country.name.@value.keyword"
+        },
+        {
+          "display": "Publisher",
+          "order": 9,
+          "name": "publisher.@value",
+          "field": "publisher.@value.keyword"
+        },
+        {
+          "display": "Serial number",
+          "order": 10,
+          "name": "seriesNumber.@value",
+          "field": "seriesNumber.@value.keyword"
         },
         {
           "display": "Modality",
-          "order": 6,
+          "order": 11,
           "name": "modality.name.@value",
-          "field": "modality.name.@value.keyword"
+          "field": "modality.name.@value.keyword",
+          "help": "The mode(s) (spoken, written, signed, etc.) used in the interaction represented by this resource.",
+          "icons": true
         },
         {
           "display": "Linguistic Genre",
-          "order": 7,
+          "order": 12,
           "name": "linguisticGenre.name.@value",
-          "field": "linguisticGenre.name.@value.keyword"
+          "field": "linguisticGenre.name.@value.keyword",
+          "help": "The linguistic classification of the genre of this resource."
         },
         {
           "display": "File Format",
-          "order": 8,
+          "order": 13,
           "name": "encodingFormat.@value",
-          "field": "encodingFormat.@value.keyword"
+          "field": "encodingFormat.@value.keyword",
+          "help": "The media type of the resource.",
+          "icons": true
         },
         {
           "display": "Annotation Type",
-          "order": 9,
+          "order": 14,
           "name": "annotationType.@value",
           "field": "annotationType.@value.keyword"
         }
       ],
-      "highlightFields": [
-        "_text"
-      ],
+      "highlightFields": ["_text"],
       "test": {
         "filters": {
-          "hasFile.language.name": [
+          "hasFile.inLanguage.name": [
             "Arabic, Standard",
             "Chinese, Mandarin",
             "Persian, Iranian",
@@ -504,9 +710,7 @@
             "Vietnames"
           ]
         },
-        "@type": [
-          "TextDialogue"
-        ]
+        "@type": ["TextDialogue"]
       },
       "mappingFieldLimit": 3000,
       "mappings": {
@@ -544,7 +748,6 @@
       "object": "https://purl.archive.org/language-data-commons/profile#Object",
       "notebook": "https://purl.archive.org/language-data-commons/profile#Notebook"
     },
-    "skipByMatch": [
-    ]
+    "skipByMatch": []
   }
 }

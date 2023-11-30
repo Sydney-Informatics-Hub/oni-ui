@@ -29,8 +29,13 @@ import HTTPService from "./http.service";
 import MembershipService from "./membership.service";
 import ElasticService from "./elastic.service";
 import VueGtag from "vue-gtag";
+import { registerLicense } from '@syncfusion/ej2-base';
 
 (async () => {
+  
+  registerLicense('Ngo9BigBOggjHTQxAR8/V1NHaF1cWWhIfEx0Rnxbf1xzZFZMZV5bRXJPIiBoS35RdURiW3xfdXFXR2RUWExy');
+  // registerLicense('Ngo9BigBOggjHTQxAR8/V1NHaF1cWWhIfExzWmFZfV1gdV9EaFZSQmY/P1ZhSXxQd0RhUX5dcnxWQGVaVUc=');
+  
   const app = createApp(App);
   app.use(store);
   app.use(router);

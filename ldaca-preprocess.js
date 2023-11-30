@@ -91,7 +91,9 @@ function make_repository_object(crate, entity) {
 
 	crate.graph.filter((e) => e['@id'].substr(0, 4) === '#rec').map((e) => {
 		make_repository_object(crate, e);
-		e["name"] = e["nameOrTitle"];
+		if (e["nameOrTitle"] !== undefined) {
+			e["name"] = e["nameOrTitle"];
+		}
 	});
 
 	await write_cooked_crate(crate, args.o);

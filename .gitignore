@@ -5,3 +5,5 @@ node_modules
 .env
 .DS_Store
 oni-storage/
+package-lock.json
+samples/heurist-cooked

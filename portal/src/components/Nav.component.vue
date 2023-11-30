@@ -1,77 +1,69 @@
 <template>
-  <el-menu
-      id="top_menu"
-      mode="horizontal"
-      :ellipsis="true"
-      :default-active="active"
-      :router="true"
-  >
-    <el-menu-item index="home" :route="topNavHome + Date.now()">
-      <router-view :key="topNavHome">
-        <el-row :gutter="10" class="flex items-center justify-center min-w-md">
-          <el-col :span="4">
-            <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
-              <span>Home</span>
-            </div>
-          </el-col>
-          <el-col :span="18">
-          <span class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
-            <img v-if="showLogo" class="object-fill block" :src="logo" :srcset="logo" :style="{'height': navHeight}"
-                 :alt="this.$store.state.configuration.ui.shortTitle || 'Oni'"/>
-            <span v-else link>{{ this.$store.state.configuration.ui.shortTitle || 'Oni' }}</span>
-          </span>
-          </el-col>
-        </el-row>
-      </router-view>
-    </el-menu-item>
-    <el-menu-item class="flex-auto"/>
-    <el-menu-item v-for="topNavItem of topNavItems" :index="topNavItem.route" :router="topNavItem.route">
-      <router-view :key="topNavItem.route">
-        <el-row :gutter="10" class="flex items-center justify-center">
-          <el-col :span="24">
-            <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
-              <span>{{ topNavItem.display }}</span>
-            </div>
-          </el-col>
-        </el-row>
-      </router-view>
-    </el-menu-item>
-    <el-menu-item index="search" :route="'/search'">
-      <router-link to="/search">
-        <el-row :gutter="10" class="flex items-center justify-center">
-          <el-col :span="24">
-            <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
-              <span>Browse</span>
-            </div>
-          </el-col>
-        </el-row>
-      </router-link>
-    </el-menu-item>
-    <nav-user v-if="isLoginEnabled"/>
-    <el-sub-menu index="help-sub">
-      <template #title class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
-        <div class="flex flex-col justify-center items-center" :style="{'height': navHeight}">
-          <span>Help</span>
+  <el-menu id="top_menu" :ellipsis="true" :default-active="active" :router="true" :style="{'backgroundColor' : headerConfig.backgroundColor}">
+
+    <el-row :gutter="0" :offset="0" style="border-bottom: 2px solid black;">
+
+      <el-col :xs="24" :sm="9" :md="9" :lg="5" :xl="5" :offset="0">
+        <div class="flex flex-col justify-center items-center" :style="{ 'height': navHeight }">
+          <el-menu-item index="home" :route="topNavHome + Date.now()">
+            <router-view :key="topNavHome">
+              <img v-if="showLogo" class="object-fill block" :src="require(`@/assets/${headerConfig.logo}`)"
+                :alt="this.$store.state.configuration.ui.shortTitle || 'Oni'" style="height: 80%;" />
+              <span v-else link>{{ this.$store.state.configuration.ui.shortTitle || 'Oni' }}</span>
+            </router-view>
+          </el-menu-item>
         </div>
-      </template>
-      <el-menu-item index="help-sub-about" :route="'/about'">
-        <router-link to="/about">
-          About Oni
-        </router-link>
-      </el-menu-item>
-      <el-menu-item index="help-sub-api" :route="'/docs'">
-        <router-link to="/docs">
-          Oni Api docs
-        </router-link>
-      </el-menu-item>
-      <template v-for="helpLink of subHelpLinks">
-        <li class="el-menu-item">
-          <a class="w-full block" :href="helpLink.href" :target="helpLink.target">
-            {{ helpLink.name }}
-          </a>
-        </li>
-      </template>
-    </el-sub-menu>
+      </el-col>
+
+      <el-col :xs="24" :sm="15" :md="15" :lg="19" :xl="19" :offset="0" style="display: flex; justify-content: space-between;">
+
+        <div class="flex items-center font-medium text-3xl">
+          {{ headerConfig.text }}
+        </div>
+        <div class="flex items-center pr-10">
+          <!-- <el-menu-item v-for="topNavItem of topNavItems" :index="topNavItem.route" :router="topNavItem.route">
+            <router-view :key="topNavItem.route">
+              <div class="flex flex-col justify-center items-center" :style="{ 'height': navHeight }">
+                <span>{{ topNavItem.display }}</span>
+              </div>
+            </router-view>
+          </el-menu-item> -->
+
+          <!-- <el-menu-item index="search" :route="'/search'">
+            <router-link to="/search">
+              <div class="flex flex-col justify-center items-center" :style="{ 'height': navHeight }">
+                <span>Browse</span>
+              </div>
+            </router-link>
+          </el-menu-item> -->
+          <nav-user v-if="isLoginEnabled" />
+          <el-sub-menu index="help-sub">
+            <template #title class="flex flex-col justify-center items-center" :style="{ 'height': navHeight }">
+              <div class="flex flex-col justify-center items-center" :style="{ 'height': navHeight }">
+                <span>Help</span>
+              </div>
+            </template>
+            <el-menu-item index="help-sub-about" :route="'/about'">
+              <router-link to="/about">
+                About Oni
+              </router-link>
+            </el-menu-item>
+            <el-menu-item index="help-sub-api" :route="'/docs'">
+              <router-link to="/docs">
+                Oni Api docs
+              </router-link>
+            </el-menu-item>
+            <template v-for="helpLink of subHelpLinks">
+              <li class="el-menu-item">
+                <a class="w-full block" :href="helpLink.href" :target="helpLink.target">
+                  {{ helpLink.name }}
+                </a>
+              </li>
+            </template>
+          </el-sub-menu>
+        </div>
+      </el-col>
+    </el-row>
   </el-menu>
 </template>
 <style>
@@ -87,8 +79,7 @@ import {
   getLocalStorage
 } from "@/storage";
 import NavUser from './NavUser.component.vue';
-import logo from "@/assets/logo.svg";
-import {defineAsyncComponent, toRaw} from "vue";
+import { defineAsyncComponent, toRaw } from "vue";
 
 export default {
   name: 'NavView',
@@ -104,14 +95,14 @@ export default {
       topNavHome: this.$store.state.configuration.ui?.topNavHome || '/search?s=',
       topNavItems: this.$store.state.configuration.ui?.topNavItems || [],
       subHelpLinks: this.$store.state.configuration.ui?.subHelpLinks || [],
-      logo,
       active: '',
       populate: null,
       searchInput: null,
       search: null,
       clear: null,
       filters: null,
-      onInputChange: null
+      onInputChange: null,
+      headerConfig: this.$store.state.configuration.ui.header,
     };
   },
   computed: {

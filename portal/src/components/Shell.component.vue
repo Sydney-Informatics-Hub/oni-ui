@@ -1,36 +1,29 @@
 <template>
-  <template v-if="ui">
-    <header class="sticky top-0 z-50">
-      <el-row :gutter="0" :offset="0" style="" class="flex items-center justify-center">
-        <el-col :xs="24" :sm="24" :md="24" :lg="20" :xl="17" :offset="0">
-      <nav-view/>
-        </el-col>
-      </el-row>
-    </header>
+  <header class="sticky top-0 z-50">
     <el-row :gutter="0" :offset="0" style="" class="flex items-center justify-center">
-      <el-col :xs="24" :sm="24" :md="24" :lg="20" :xl="17" :offset="0">
-    <main class="">
-      <router-view/>
-    </main>
+      <el-col>
+        <nav-view />
       </el-col>
     </el-row>
-    <footer>
-      <footer-view/>
-    </footer>
-  </template>
-  <template v-else>
-    <MaintenacePage/>
-  </template>
+  </header>
+  <el-row :gutter="0" :offset="0" class="flex items-center justify-center relative" >
+    <el-col>
+      <main class="">
+        <router-view />
+      </main>
+    </el-col>
+  </el-row>
+  <footer>
+    <footer-view />
+  </footer>
 </template>
 
 <script>
 import NavView from './Nav.component.vue';
 import FooterView from './Footer.component.vue';
-import MaintenacePage from "./MaintenacePage.vue";
 
 export default {
   components: {
-    MaintenacePage,
     NavView,
     FooterView
   },
