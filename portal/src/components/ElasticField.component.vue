@@ -3,32 +3,32 @@
     <el-collapse>
       <el-collapse-item :title="name" :name="name">
         <meta-field :meta="this.expandField" :isExpand="true" :routePath="'item'" :crateId="''" :filePath="''"
-                    :parentId="''"/>
+          :parentId="''" />
       </el-collapse-item>
     </el-collapse>
   </template>
   <template v-else-if="isGeoLocation">
-    <MappableLocation :latlngs="latlngs" mapType='cluster'/>
+    <MappableLocation :latlngs="latlngs" mapType='cluster' />
   </template>
   <template v-else-if="isJourney">
-    <MappableLocation :latlngs="[latlngs]" mapType='journey'/>
+    <MappableLocation :latlngs="[latlngs]" mapType='journey' />
   </template>
   <template v-else-if="title === 'base64'">
-    <NotebookViewerWidget :ipynb="value"/>
+    <NotebookViewerWidget :ipynb="value" />
   </template>
   <template v-else>
     <template v-if="url">
       <a class="break-words underline text-blue-600 hover:text-blue-800 visited:text-purple-600" :href="id"
-         target="_blank" rel="nofollow noreferrer">{{ name || id }}</a>
+        target="_blank" rel="nofollow noreferrer">{{ name || id }}</a>
     </template>
     <template v-else-if="value">{{ value }}</template>
     <template v-else>
       <p>
         {{ name }}
         <el-tooltip v-if="description" class="box-item" effect="light" trigger="click" :content="description"
-                    placement="top">
+          placement="top">
           <el-button size="small" link>
-            <font-awesome-icon icon="fa-solid fa-circle-info"/>
+            <font-awesome-icon icon="fa-solid fa-circle-info" />
           </el-button>
         </el-tooltip>
       </p>
@@ -36,20 +36,20 @@
   </template>
 </template>
 <script>
-import {first, isEmpty} from "lodash";
+import { first, isEmpty } from "lodash";
 import convertSize from "convert-size";
-import {defineAsyncComponent} from 'vue';
+import { defineAsyncComponent } from 'vue';
 
 export default {
   components: {
     NotebookViewerWidget: defineAsyncComponent(() =>
-        import('./widgets/NotebookViewerWidget.component.vue')
+      import('./widgets/NotebookViewerWidget.component.vue')
     ),
     MappableLocation: defineAsyncComponent(() =>
-        import('@/components/MappableLocation.component.vue')
+      import('@/components/MappableLocation.component.vue')
     ),
     MetaField: defineAsyncComponent(() =>
-        import('@/components/MetaField.component.vue')
+      import('@/components/MetaField.component.vue')
     )
   },
   props: ['field', 'title'],
@@ -76,16 +76,24 @@ export default {
     this.description = first(this.field?.['description'])?.['@value'];
     this.isGeoLocation = this.title === '_geolocation';
     // this.field?.['@type'] === 'GeoCoordinates';
-    if( this.isGeoLocation ) {
+    if (this.isGeoLocation) {
       for (let g of this.field) {
-        this.latlngs.push([g[0]?.['latitude'],g[0]?.['longitude']])
+        this.latlngs.push({
+          latitude: g[0]?.['latitude'],
+          longitude: g[0]?.['longitude'],
+          properties: {}
+        })
       }
     }
 
     this.isJourney = this.title === '_journeyGeolocation';
-    if( this.isJourney ) {
+    if (this.isJourney) {
       for (let g of this.field) {
-        this.latlngs.push([g[0]?.['latitude'],g[0]?.['longitude']])
+        this.latlngs.push({
+          latitude: g[0]?.['latitude'],
+          longitude: g[0]?.['longitude'],
+          properties: {}
+        })
       }
     }
 
@@ -102,7 +110,7 @@ export default {
     for (let f of this.expand) {
       if (f === this.title) {
         console.log(f, this.title)
-        this.expandField = {name: this.title, data: this.field};
+        this.expandField = { name: this.title, data: this.field };
       }
     }
     this.value = this.cleanValue();
@@ -139,7 +147,7 @@ export default {
     },
     convert(value) {
       try {
-        return convertSize(parseInt(value), {accuracy: 2});
+        return convertSize(parseInt(value), { accuracy: 2 });
       } catch (e) {
         return value;
       }
