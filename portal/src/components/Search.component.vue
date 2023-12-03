@@ -132,7 +132,9 @@
 
             <div v-show="currentListView !== 'table'">
               <el-button-group class="my-1">
-                <el-button type="default" v-on:click="this.resetSearch" :style="{ 'background' : this.$store.state.configuration.ui.button.backgroundColor }">Reset sort</el-button>
+                <el-button type="default" v-on:click="this.resetSearch"
+                  :style="{ 'background': this.$store.state.configuration.ui.button.backgroundColor }">Reset
+                  sort</el-button>
               </el-button-group>
               <el-select v-model="selectedSorting" @change="sortResults" class="my-1 ml-2">
                 <template #prefix>Sort by:</template>
@@ -145,7 +147,9 @@
             </div>
 
             <el-button-group class="my-1">
-              <el-button type="default" v-on:click="this.downloadCSV" :style="{ 'background' : this.$store.state.configuration.ui.button.backgroundColor }">Download CSV</el-button>
+              <el-button type="default" v-on:click="this.downloadCSV"
+                :style="{ 'background': this.$store.state.configuration.ui.button.backgroundColor }">Download
+                CSV</el-button>
             </el-button-group>
 
           </el-col>
@@ -172,7 +176,7 @@
               :conformsTo="item.conformsTo" :types="item._source?.['@type']" :_memberOf="item._source?._memberOf"
               :highlight="item?.highlight" :root="item._source?._root" :parent="item._source?._parent"
               :aggregations="aggregations" :details="item._source" :score="item._score"
-              :colorMap="viewConfig.options.list.options[0].color" />
+              :colorMap="viewConfig.options.list.options[0].color" :icons="viewConfig.icons" />
           </template>
         </div>
 
@@ -194,7 +198,7 @@
         <div v-show="currentListView !== 'table'" class="py-2 w-full" style="margin-left: 4%;">
           <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="totals['value']"
             v-model:page-size="pageSize" @update:page-size="pageSize" v-model:currentPage="currentPage"
-            @current-change="updatePages($event, 'total_results')"  />
+            @current-change="updatePages($event, 'total_results')" />
         </div>
       </div>
 
@@ -242,7 +246,7 @@ import SearchTile from './SearchTile.component.vue';
 import SearchAggs from './SearchAggs.component.vue';
 import { putLocalStorage, getLocalStorage, removeLocalStorage } from '@/storage';
 import SearchAdvanced from "./SearchAdvanced.component.vue";
-import { readValue } from "@/generalFunctions";
+import { readValue, getLabelDisplay } from "@/generalFunctions";
 import { v4 as uuid } from 'uuid';
 
 export default {
@@ -669,7 +673,7 @@ export default {
         this.latlngs = [];
         this.journeyLatlngs = [];
         this.csvHeader = new Set();
-        //MUFENg . use category for mapping
+        //TODO . use category for mapping
         let colorMap = this.viewConfig.options.map.color.map;
 
         if (items?.['hits']) {
@@ -697,15 +701,17 @@ export default {
                   }
                 }
 
-                //MUfeng . check subview
+                let properties = {};
                 if (item['_source']['_geolocation']) {
                   let geoCoordinates = item['_source']['_geolocation'][0][0][0];
                   if (geoCoordinates) {
+                    properties = this.getMapPinProperties(item['_source']);
                     this.latlngs.push(
                       {
                         latitude: geoCoordinates['latitude'],
                         longitude: geoCoordinates['longitude'],
-                        color: color
+                        color: color,
+                        properties: properties
                       }
                     );
                   }
@@ -720,7 +726,8 @@ export default {
                         {
                           latitude: journeyGeo[0]['latitude'],
                           longitude: journeyGeo[0]['longitude'],
-                          color: color
+                          color: color,
+                          properties: properties
                         }
                       );
                     }
@@ -731,15 +738,17 @@ export default {
                 if (item['_source']['_dateGeolocation']) {
                   let dateGeoLocation = item['_source']['_dateGeolocation'][0][0][0];
                   if (dateGeoLocation) {
+                    properties['datestart'] = dateGeoLocation['datestart'];
+                    properties['dateend'] = dateGeoLocation['dateend'];
+                    properties['udatestart'] = dateGeoLocation['udatestart'];
+                    properties['udateend'] = dateGeoLocation['udateend'];
+
                     this.dateLatlngs.push(
                       {
                         latitude: dateGeoLocation['latitude'],
                         longitude: dateGeoLocation['longitude'],
-                        datestart: dateGeoLocation['datestart'],
-                        dateend: dateGeoLocation['dateend'],
-                        udatestart: dateGeoLocation['udatestart'],
-                        udateend: dateGeoLocation['udateend'],
-                        color: color
+                        color: color,
+                        properties: properties
                       }
                     );
                   }
@@ -754,6 +763,26 @@ export default {
         this.errorDialogText = e.message;
         this.loading = false;
       }
+    },
+    getMapPinProperties(metadata) {
+      //TODO, this should be in the proprocess stage for performance
+      let properties = {};
+
+      if (metadata['name']) {
+        properties['name'] = readValue(metadata, 'name').join(", ");
+      }
+
+      const propertiesConfig = this.viewConfig.options?.map?.popUp;
+      if (propertiesConfig && Array.isArray(propertiesConfig)) {
+        for (let propertyConfig of propertiesConfig) {
+          let value = readValue(metadata, propertyConfig);
+          if (value) {
+            properties[getLabelDisplay(propertyConfig)] = value.join(', ');
+          }
+        }
+      }
+
+      return properties;
     },
     getSearchDetailUrl(item) {
       //console.log(item);
@@ -802,18 +831,15 @@ export default {
     sortResults(sort) {
       this.currentPage = 1;
       this.selectedSorting = sort;
-      console.log("Mufeng SortResults");
       this.search();
     },
     orderResults(order) {
       this.currentPage = 1;
       this.selectedOrder = order;
-      console.log("Mufeng OrderResults");
       this.search();
     },
     async updatePages(page, scrollTo) {
       this.currentPage = page;
-      console.log("Mufeng UpdatePages");
       await this.search();
       this.scrollToTop();//Id(scrollTo);
     },
@@ -928,6 +954,4 @@ html {
 
 .active {
   background-color: lightskyblue;
-}
-
-</style>
+}</style>

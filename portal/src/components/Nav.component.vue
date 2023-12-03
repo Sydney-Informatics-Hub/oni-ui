@@ -4,7 +4,7 @@
     <el-row :gutter="0" :offset="0" style="border-bottom: 2px solid black;">
 
       <el-col :xs="24" :sm="9" :md="9" :lg="5" :xl="5" :offset="0">
-        <div class="flex flex-col justify-center items-center" :style="{ 'height': navHeight }">
+        <div class="flex flex-col justify-center pl-3" :style="{ 'height': navHeight }">
           <el-menu-item index="home" :route="topNavHome + Date.now()">
             <router-view :key="topNavHome">
               <img v-if="showLogo" class="object-fill block" :src="require(`@/assets/${headerConfig.logo}`)"

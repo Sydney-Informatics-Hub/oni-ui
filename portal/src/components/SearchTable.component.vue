@@ -6,7 +6,8 @@
       :resizeStop='resizeStop'>
       <e-columns>
         <e-column v-for="(prop, index) in properties" :field="prop.name" :headerText="prop.display"
-          :width="getColumnWidth(prop)" :visible="getColumnVisibility(index, prop)"></e-column>
+          :width="getColumnWidth(prop)" :visible="getColumnVisibility(index, prop)"
+          :disableHtmlEncode="prop.name === 'name' ? false : true"></e-column>
       </e-columns>
     </ejs-grid>
   </div>
@@ -17,7 +18,7 @@
 import { GridComponent, ColumnDirective, ColumnsDirective, Sort, Resize, Filter, Group, ColumnChooser, Toolbar, Page } from "@syncfusion/ej2-vue-grids";
 import { putLocalStorage, getLocalStorage } from '@/storage';
 import { readValue } from "@/generalFunctions";
-
+import { first } from 'lodash';
 
 export default {
   components: {
@@ -78,6 +79,8 @@ export default {
 
           if (prop.name === '_memberOf') {
             rowData[prop.name] = this.formatDetails(item);
+          } else if (prop.name === 'name') {
+            rowData[prop.name] = '<a href=' + this.getSearchDetailUrl(item) + ' class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"">' + readValue(item._source, prop.name).join(', ') + '</a>';
           } else {
             rowData[prop.name] = readValue(item._source, prop.name).join(', ');
           }
@@ -183,8 +186,44 @@ export default {
       const groupedColumnNames = getLocalStorage({
         key: 'tableColumnGrouping'
       });
-      this.groupOptions.columns = groupedColumnNames;
-    }
+      if (groupedColumnNames && Array.isArray(groupedColumnNames) && groupedColumnNames.length > 0) {
+        this.groupOptions.columns = groupedColumnNames;
+      }
+    },
+    getSearchDetailUrl(item) {
+      //console.log(item);
+      //TODO: this is not good, maybe do it with a ConformsTo to specify link. But have to think about it because not
+      //      all files have conformsTo!
+      let url;
+      const types = item._source['@type'];
+      const repoType = types.find(t => t === 'RepositoryCollection');
+      const fileType = types.find(t => t === 'File');
+      const itemType = types.find(t => t === 'RepositoryObject');
+      let id = encodeURIComponent(item._source['@id']);
+      let crateId = encodeURIComponent(first(item._source['_crateId'])?.['@value']);
+      if (repoType) {
+        url = `/collection?id=${id}&_crateId=${crateId}`
+      } else if (itemType) {
+        url = `/object?id=${id}&_crateId=${crateId}`
+      } else if (fileType) {
+        let isNotebook;
+        if (item._source?.['conformsTo']) {
+          isNotebook = item._source['conformsTo'].find(c => c['@id'] === this.conformsToNotebook);
+        }
+        if (isNotebook) {
+          id = encodeURIComponent(item._id);
+          url = `/object?_id=${id}`;
+        } else {
+          const fileId = id;
+          id = encodeURIComponent(first(item._source['_parent'])?.['@id']);
+          url = `/object?id=${id}&_crateId=${crateId}&fileId=${fileId}`
+        }
+      } else {
+        //Defaults to object if it doesnt know what it is
+        url = `/object?id=${id}&_crateId=${crateId}`
+      }
+      return url;
+    },
   },
 };
 </script>

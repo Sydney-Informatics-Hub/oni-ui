@@ -153,6 +153,12 @@
           "icon": "old.svg"
         }
       },
+      "map": {
+        "CreativeWork": "omaa-icon/article-object.svg",
+        "Place": "omaa-icon/place-object.svg",
+        "Newspaper": "omaa-icon/newspaper-object.svg",
+        "Person": "omaa-icon/person-object.svg"
+      },
       "name": {
         "display": "Name",
         "name": "name"
@@ -383,21 +389,24 @@
             {
               "name": "journey",
               "icon": "journey-map-view.svg",
-              "title": "Journey map View",
-              "properties": []
+              "title": "Journey map View"
             },
             {
               "name": "cluster",
               "icon": "cluster-map-view.svg",
-              "title": "Cluster map View",
-              "properties": []
+              "title": "Cluster map View"
             },
             {
               "name": "timeline",
               "icon": "timeline-map-view.svg",
-              "title": "TimeLine map View",
-              "properties": []
+              "title": "TimeLine map View"
             }
+          ],
+          "popUp": [
+            "spatialCoverage",
+            "inLanguage",
+            "countryOfOrigin",
+            "currentHolder"
           ],
           "color": {
             "field": "category",
@@ -411,6 +420,15 @@
               "#term_10046": "#1F6D30"
             }
           }
+        }
+      },
+      "icons": {
+        "field": "@type",
+        "map": {
+          "CreativeWork": "omaa-icon/article.svg",
+          "Place": "omaa-icon/place.svg",
+          "Newspaper": "omaa-icon/newspaper.svg",
+          "Person": "omaa-icon/person.svg"
         }
       }
     },
@@ -697,6 +715,14 @@
           "order": 14,
           "name": "annotationType.@value",
           "field": "annotationType.@value.keyword"
+        },
+        {
+          "display": "License",
+          "order": 15,
+          "name": "license.@id",
+          "field": "license.@id.keyword",
+          "hide": true,
+          "icons": true
         }
       ],
       "highlightFields": ["_text"],

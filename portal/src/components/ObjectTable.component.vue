@@ -50,5 +50,7 @@ export default {
 
 td {
   padding: 0.5rem;
+  max-width: 400px;
+  word-break: break-all;
 }
 </style>

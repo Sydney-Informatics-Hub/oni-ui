@@ -1,6 +1,9 @@
 <template>
   <div class="text-tile flex flex-col" :style="{ 'background-color': backgroundColor }">
-    <div class="tile-title">{{ this.name || this.id }}</div>
+    <div class="tile-title flex items-center">
+      <img v-if="getIcon() !== null" :src="require(`@/assets/${getIcon()}`)" class="mr-1" style="height: 30px;">
+      {{ this.name || this.id }}
+    </div>
 
     <div class="tile-info">
       <span v-for="(type, index) in types" :key="index">
@@ -45,7 +48,7 @@
   </div>
 </template>
 <script>
-import { first, merge, toArray, isEmpty, find, isUndefined } from 'lodash';
+import { first, merge, toArray, isEmpty, find, isUndefined, forEach } from 'lodash';
 import SummariesCard from './cards/SummariesCard.component.vue';
 import AggregationHelper from './helpers/AggregationHelper.component.vue';
 import AggregationAsIcon from "./widgets/AggregationAsIcon.component.vue";
@@ -58,7 +61,7 @@ export default {
     AggregationHelper,
     AggregationAsIcon
   },
-  props: ['id', 'href', 'name', 'conformsTo', 'types', '_memberOf', 'root', 'highlight', 'parent', 'details', 'score' , 'colorMap'],
+  props: ['id', 'href', 'name', 'conformsTo', 'types', '_memberOf', 'root', 'highlight', 'parent', 'details', 'score', 'colorMap', 'icons'],
   data() {
     return {
       fields: this.$store.state.configuration.ui.main.fields || [],
@@ -90,8 +93,11 @@ export default {
     await this.updateSummaries();
     this.getBackgroundColor();
   },
-  async computed() {
-    await this.updateSummaries();
+  computed: {
+    iconSrc() {
+      // Computed property depends on the 'icon' data property
+      return this.icon ? require(`@/assets/${this.icon}`) : null;
+    },
   },
   methods: {
     first,
@@ -159,7 +165,7 @@ export default {
         order: 'desc'
       });
       if (items?.hits?.hits.length > 0) {
-      return {
+        return {
           data: items?.hits?.hits,
           aggregations: items?.aggregations,
           total: items.hits?.total.value,
@@ -171,11 +177,20 @@ export default {
     getBackgroundColor() {
       if (this.colorMap) {
         this.backgroundColor = this.colorMap.map['default'];
-        if(this.details.category){
+        if (this.details.category) {
           this.backgroundColor = this.colorMap.map[this.details.category[0]['@id']]
         }
       }
-    }
+    },
+    getIcon() {
+      let iconMap = this.icons.map;
+      for (const type of this.types) {
+        if (iconMap.hasOwnProperty(type)) {
+          return iconMap[type];
+        }
+      }
+      return null;
+    },
   }
 }
 </script>
@@ -201,7 +216,7 @@ a {
 
 .text-tile .tile-title {
   font-family: Antwerp, Georgia, serif;
-  font-size: 27px;
+  font-size: 26px;
   font-style: italic;
   position: relative;
   padding-bottom: 10px;

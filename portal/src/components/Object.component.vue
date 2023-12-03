@@ -4,7 +4,8 @@
       <div style="width: 85%;">
 
         <div class="flex justify-between">
-          <div class="text-4xl font-semibold p-5 pt-10" style="margin-left: 1%;">
+          <div class="text-4xl font-semibold p-5 pt-10 flex items-center" style="margin-left: 1%;">
+            <img v-if="icon" :src="require(`@/assets/${icon}`)" class="mr-1" style="height: 30px;">
             {{ first(this.name)?.['@value'] }}
           </div>
           <div class="flex items-center">
@@ -219,7 +220,8 @@ export default {
       membersFiltered: {},
       conformsToObject: this.$store.state.configuration.ui.conformsTo?.object,
       tableData: [],
-      showTableData: true,
+      showTableData: false,
+      icon: null,
       tableDataExclude: ['text', 'abstract', 'description', 'translation', '_root', '_metadataLicense', '_access', '_metadataIsPublic'],
     }
   },
@@ -264,6 +266,7 @@ export default {
       await this.populate();
       initSnip({ selector: '#license', button: '#readMoreLicense' });
       putLocalStorage({ key: 'lastRoute', data: this.$route.fullPath });
+      this.getIcon();
       this.loading = false;
     } catch (e) {
       console.error(e)
@@ -390,7 +393,17 @@ export default {
           });
         });
       }
-    }
+    },
+    getIcon() {
+      let iconMap = this.config.map;
+      let types = readValue(this.metadata, '@type');
+      for(let i = 0; i < types.length; i++){
+        if(iconMap.hasOwnProperty(types[i])){
+          this.icon = iconMap[types[i]];
+          return;
+        }
+      }
+    },
   }
 }
 </script>

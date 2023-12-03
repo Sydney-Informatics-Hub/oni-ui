@@ -43,6 +43,7 @@ export default {
 
       if (this.mapType == 'journey') {
         latlng.forEach(ll => {
+          var serializableProperties = JSON.parse(JSON.stringify(ll['properties']));
           var feature = {
             type: "Feature",
             geometry: {
@@ -50,33 +51,32 @@ export default {
               coordinates: [ll['latitude'], ll['longitude']],
             },
             display: { color: ll['color'] },
+            properties: serializableProperties,
           };
           features.push(feature);
         });
 
-      } else if(this.mapType == 'cluster'){
+      } else if (this.mapType == 'cluster') {
+        var serializableProperties = JSON.parse(JSON.stringify(latlng['properties']));
         var feature = {
           type: "Feature",
           geometry: {
             type: "Point",
             coordinates: [latlng['latitude'], latlng['longitude']],
           },
-          display: {color: latlng['color'] },
+          properties: serializableProperties,
+          display: { color: latlng['color'], popup: {} },
         };
         features.push(feature);
-      } else if(this.mapType == 'timeline'){
+      } else if (this.mapType == 'timeline') {
+        var serializableProperties = JSON.parse(JSON.stringify(latlng['properties']));
         var feature = {
           type: "Feature",
           geometry: {
             type: "Point",
             coordinates: [latlng['latitude'], latlng['longitude']],
           },
-          properties:{
-            datestart: latlng['datestart'],
-            dateend: latlng['dateend'],
-            udatestart: latlng['udatestart'],
-            udateend: latlng['udateend'],
-          },
+          properties: serializableProperties,
           display: { color: latlng['color'] },
         };
         features.push(feature);
@@ -120,10 +120,8 @@ export default {
         clusterColor: "#301934",
         clusterFontColor: "white",
         popup: {
-          allowedFields: [],
-          content:
-            "",
-        },
+          blockedFields: ['name', 'datestart', 'dateend', 'udatestart', 'udateend']
+        }
       },
     };
     this.$nextTick(() => {
