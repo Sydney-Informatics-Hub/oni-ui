@@ -7,12 +7,6 @@
       </el-collapse-item>
     </el-collapse>
   </template>
-  <template v-else-if="isGeoLocation">
-    <MappableLocation :latlngs="latlngs" mapType='cluster' />
-  </template>
-  <template v-else-if="isJourney">
-    <MappableLocation :latlngs="[latlngs]" mapType='journey' />
-  </template>
   <template v-else-if="title === 'base64'">
     <NotebookViewerWidget :ipynb="value" />
   </template>
@@ -62,8 +56,6 @@ export default {
       value: '',
       byteFields: this.$store.state.configuration.ui?.main?.byteFields || [],
       expand: this.$store.state.configuration.ui?.main?.expand || [],
-      isGeoLocation: false,
-      isJourney: false,
       latlngs: [],
       expandField: false,
       hide: false
@@ -86,16 +78,6 @@ export default {
       }
     }
 
-    this.isJourney = this.title === '_journeyGeolocation';
-    if (this.isJourney) {
-      for (let g of this.field) {
-        this.latlngs.push({
-          latitude: g[0]?.['latitude'],
-          longitude: g[0]?.['longitude'],
-          properties: {}
-        })
-      }
-    }
 
     // This only if the value is ever empty, AKA not indexed or resolved
     if (isEmpty(this.name)) {

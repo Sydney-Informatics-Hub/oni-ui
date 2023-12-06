@@ -10,6 +10,10 @@ export default {
   props: {
     latlngs: Array,
     mapType: String,
+    logo: {
+      type: [String, null],
+      default: null
+    },
     height: {
       type: String,
       default: '500px'
@@ -43,7 +47,6 @@ export default {
 
       if (this.mapType == 'journey') {
         latlng.forEach(ll => {
-          var serializableProperties = JSON.parse(JSON.stringify(ll['properties']));
           var feature = {
             type: "Feature",
             geometry: {
@@ -51,7 +54,9 @@ export default {
               coordinates: [ll['latitude'], ll['longitude']],
             },
             display: { color: ll['color'] },
-            properties: serializableProperties,
+            properties: {
+              name: ll['name']
+            },
           };
           features.push(feature);
         });
@@ -65,7 +70,17 @@ export default {
             coordinates: [latlng['latitude'], latlng['longitude']],
           },
           properties: serializableProperties,
-          display: { color: latlng['color'], popup: {} },
+          display: {
+            color: latlng['color'],
+            popup: {
+              links: [
+                {
+                  text: "Read more",
+                  link: latlng['url'],
+                },
+              ],
+            }
+          },
         };
         features.push(feature);
       } else if (this.mapType == 'timeline') {
@@ -77,17 +92,33 @@ export default {
             coordinates: [latlng['latitude'], latlng['longitude']],
           },
           properties: serializableProperties,
-          display: { color: latlng['color'] },
+          display: {
+            color: latlng['color'],
+            popup: {
+              links: [
+                {
+                  text: "Read more",
+                  link: latlng['url'],
+                },
+              ],
+            }
+          },
         };
         features.push(feature);
       }
     });
 
+    //Construct lines for journey
     if (this.mapType == 'journey') {
       this.latlngs.forEach(latlng => {
         var linecoords = [];
         var color = null;
+        var serializableProperties = null;
+        var link = null;
         latlng.forEach(ll => {
+          serializableProperties = JSON.parse(JSON.stringify(ll['properties']));
+          link = ll['url'];
+
           linecoords.push([ll['latitude'], ll['longitude']]);
           color = ll['color'];
         });
@@ -97,7 +128,18 @@ export default {
             type: "LineString",
             coordinates: linecoords,
           },
-          display: { color: color },
+          properties: serializableProperties,
+          display: {
+            color: color,
+            popup: {
+              links: [
+                {
+                  text: "Read more",
+                  link: link,
+                },
+              ],
+            }
+          },
         };
         features.push(feature);
       });
@@ -124,6 +166,10 @@ export default {
         }
       },
     };
+
+    if (this.logo) {
+      GeoJSON.display.info.logo = require(`@/assets/${this.logo}`);
+    }
     this.$nextTick(() => {
       const iframe = document.getElementById(this.id);
       const mapAPI = new TLCMapAPI(iframe);

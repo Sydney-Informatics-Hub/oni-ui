@@ -1,9 +1,13 @@
 <template>
   <div class="text-tile flex flex-col" :style="{ 'background-color': backgroundColor }">
-    <div class="tile-title flex items-center">
+
+    <div class="flex items-center">
       <img v-if="getIcon() !== null" :src="require(`@/assets/${getIcon()}`)" class="mr-1" style="height: 30px;">
-      {{ this.name || this.id }}
+      <div class="tile-title ">
+        {{ this.name || this.id }}
+      </div>
     </div>
+
 
     <div class="tile-info">
       <span v-for="(type, index) in types" :key="index">
@@ -201,10 +205,11 @@ a {
 }
 
 .text-tile {
-  width: 20%;
+  flex: 1;
+  max-width: calc(20% - 30px);
+  min-width: calc(18% - 30px);
   color: white;
   font-family: Apercu, sans-serif;
-  flex-shrink: 0;
   padding: 20px 10px;
   line-height: 120%;
   border: 2px solid black;
@@ -218,8 +223,10 @@ a {
   font-family: Antwerp, Georgia, serif;
   font-size: 26px;
   font-style: italic;
-  position: relative;
-  padding-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   line-height: 120%;
 }
 
@@ -227,4 +234,38 @@ a {
 .text-tile .tile-info {
   font-size: 1.2em;
 }
-</style>
+
+/* Media Queries for different widths */
+
+@media (max-width: 2000px) {
+  .text-tile {
+    max-width: calc(25% - 30px);
+    min-width: calc(25% - 30px);
+    /* 2 tiles per row */
+  }
+}
+
+@media (max-width: 1500px) {
+  .text-tile {
+    max-width: calc(33.33% - 30px);
+    min-width: calc(33.33% - 30px);
+    /* 2 tiles per row */
+  }
+}
+
+
+@media (max-width: 1200px) {
+  .text-tile {
+    max-width: calc(50% - 30px);
+    min-width: calc(50% - 30px);
+    /* 2 tiles per row */
+  }
+}
+
+@media (max-width: 900px) {
+  .text-tile {
+    max-width: calc(100% - 30px);
+    min-width: calc(100% - 30px);
+    /* 1 tiles per row */
+  }
+}</style>

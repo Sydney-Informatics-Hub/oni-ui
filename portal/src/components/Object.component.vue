@@ -1,14 +1,14 @@
 <template>
   <div v-show='currentView === "new"'>
     <div class="table_section flex justify-center" style="background-color: #F5F8DE;">
-      <div style="width: 85%;">
 
+      <div style="width: 98%;">
         <div class="flex justify-between">
-          <div class="text-4xl font-semibold p-5 pt-10 flex items-center" style="margin-left: 1%;">
+          <div class="text-4xl font-semibold p-5 pt-10 flex items-center" style="margin-left: 8.5%;">
             <img v-if="icon" :src="require(`@/assets/${icon}`)" class="mr-1" style="height: 30px;">
             {{ first(this.name)?.['@value'] }}
           </div>
-          <div class="flex items-center">
+          <div class="flex items-center" style="min-width: 50px;">
             <div class="flex mr-3">
               <img src="../assets/tile-view.svg" :class="{ 'active': currentView === 'new' }" @click="switchView('new')"
                 style="width: 40px; height: 40px; cursor: pointer;">
@@ -18,18 +18,21 @@
           </div>
         </div>
 
-        <div v-show="showTableData" class="flex justify-center px-10 pb-4" >
-          <ObjectTable :tableData="leftTableData"></ObjectTable>
-          <ObjectTable :tableData="rightTableData"></ObjectTable>
-        </div>
+        <div style="width: 85%; margin: auto;">
+          <div v-show="showTableData" class="flex justify-center px-10 pb-4">
+            <ObjectTable :tableData="leftTableData"></ObjectTable>
+            <ObjectTable :tableData="rightTableData"></ObjectTable>
+          </div>
 
-        <el-row class="p-5 text-lg cursor-pointer" style="margin-left: 1%;" @click="toggleTableData">
-          About this object <span class="px-3">
-            <font-awesome-icon v-if="showTableData" icon="fa fa-chevron-up" />
-            <font-awesome-icon v-else icon="fa fa-chevron-down" />
-          </span>
-        </el-row>
+          <el-row class="p-5 text-lg cursor-pointer" style="margin-left: 1%;" @click="toggleTableData">
+            About this object <span class="px-3">
+              <font-awesome-icon v-if="showTableData" icon="fa fa-chevron-up" />
+              <font-awesome-icon v-else icon="fa fa-chevron-down" />
+            </span>
+          </el-row>
+        </div>
       </div>
+
     </div>
 
     <div class="main_section flex justify-center" style="border-top: 2px solid black;">
@@ -44,7 +47,8 @@
           </div>
         </div>
 
-        <el-row v-if="metadata.hasOwnProperty('abstract')" class="p-5" style="margin-left: 3%; display:block; border-bottom: 2px #B91C1C;">
+        <el-row v-if="metadata.hasOwnProperty('abstract')" class="p-5"
+          style="margin-left: 3%; display:block; border-bottom: 2px #B91C1C;">
           <h1 class="text-4xl font-medium dark:text-white" style="border-bottom: 2px solid #B91C1C;">Abstract</h1>
           <p class="mt-4 text-lg">{{ readValue(metadata, 'abstract')[0] }}</p>
         </el-row>
@@ -70,13 +74,13 @@
 
   <div v-show="currentView === 'old'">
     <div class="px-10 pt-10 pb-7 z-10 bg-white">
-      <el-row :align="'middle'" class="mb-2 text-4xl font-medium dark:text-white">
+      <el-row :align="'middle'" class="mb-2 text-4xl font-medium dark:text-white flex justify-between">
         <h5>
           <member-of-link :memberOf="metadata?._memberOf" />
           {{ first(this.name)?.['@value'] }}
         </h5>
-      </el-row>
-      <div class="flex justify-end">
+
+        <div class="flex justify-end">
         <el-row>
           <div class="flex mr-3">
             <img src="../assets/tile-view.svg" :class="{ 'active': currentView === 'new' }" @click="switchView('new')"
@@ -86,6 +90,7 @@
           </div>
         </el-row>
       </div>
+      </el-row>
     </div>
 
     <el-row :justify="'center'" v-if="this.metadata" class="m-5 px-10" v-loading="loading">
@@ -397,8 +402,8 @@ export default {
     getIcon() {
       let iconMap = this.config.map;
       let types = readValue(this.metadata, '@type');
-      for(let i = 0; i < types.length; i++){
-        if(iconMap.hasOwnProperty(types[i])){
+      for (let i = 0; i < types.length; i++) {
+        if (iconMap.hasOwnProperty(types[i])) {
           this.icon = iconMap[types[i]];
           return;
         }

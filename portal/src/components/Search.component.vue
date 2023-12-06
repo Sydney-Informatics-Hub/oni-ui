@@ -1,7 +1,7 @@
 <template>
   <el-row :gutter="0" :offset="0">
     <el-col :xs="24" :sm="9" :md="9" :lg="5" :xl="5" :offset="0" class="h-full overflow-y-auto flex flex-col"
-      id="search_aggregation" style="padding-top: 1rem">
+      id="search_aggregation" style="padding-top: 1rem;overflow: hidden;">
       <div v-show="!advancedSearch" class="flex-1 w-full min-w-full bg-white rounded ">
         <search-bar ref='searchBar' @populate='populate' :searchInput="searchInput" @search="search" :clearSearch="clear"
           :filters="this.filters" :fields="searchFields" class="grow justify-items-center items-center m-4"
@@ -10,7 +10,7 @@
 
         <el-row :justify="'center'" :gutter="20" :align="'middle'" class="pb-2">
           <el-button-group class="mr-1">
-            <el-button @click="clearFilters()"
+            <el-button v-on:click="this.resetSearch"
               :style="{ 'background': this.$store.state.configuration.ui.button.backgroundColor }">Reset</el-button>
           </el-button-group>
         </el-row>
@@ -81,7 +81,7 @@
             }} results</span></span>
 
             <div style="padding-top: 4px;">
-              <label class="radio pl-2" v-for="viewKey in viewKeys" :key="viewKey">
+              <label class="radio pl-2" v-for="viewKey in viewKeys" :key="viewKey" :id="'radio-' + viewKey">
                 <input type="radio" :name="`typeFilter-${viewKey}`" @click="switchView(viewKey)"
                   :checked="currentView === viewKey">
                 <span class="label-body pl-1">{{ viewKey.charAt(0).toUpperCase() + viewKey.slice(1) }}</span>
@@ -98,7 +98,8 @@
           <div v-else-if="currentView === 'map'" class="flex mr-3">
             <img v-for="option in viewConfig.options.map.options" :key="option.name"
               :src="require(`@/assets/${option.icon}`)" @click="switchSubView('map', option.name)"
-              :class="{ active: currentMapView === option.name }" style="width: 40px; height: 40px; cursor: pointer;">
+              :class="{ active: currentMapView === option.name }" v-show="shouldShowMapIcon(option.name)"
+              style="width: 40px; height: 40px; cursor: pointer;">
           </div>
 
         </div>
@@ -128,9 +129,9 @@
           }} results</span></span>
         </el-row> -->
         <el-row v-if="currentView === 'list'" class="pt-2">
-          <el-col :span="24" class="flex space-x-4">
+          <el-col :span="24" class="flex">
 
-            <div v-show="currentListView !== 'table'">
+            <div v-show="currentListView !== 'table'" class="mr-3">
               <el-button-group class="my-1">
                 <el-button type="default" v-on:click="this.resetSearch"
                   :style="{ 'background': this.$store.state.configuration.ui.button.backgroundColor }">Reset
@@ -156,20 +157,25 @@
         </el-row>
       </div>
 
-      <div v-if="viewConfig.options['map'] && currentView === 'map'" class="map-view" style="padding-left: 6%;">
-        <div v-show="journeyLatlngs.length > 0 && currentMapView === 'journey'">
-          <MappableLocation :key="mapKey" :latlngs="journeyLatlngs" mapType="journey" height="80vh" width="96%" />
+      <div v-if="viewConfig.options['map'] && currentView === 'map'" class="map-view mr-3">
+        <div v-show="latlngs.length > 0 && currentMapView === 'cluster' && showClusterMap">
+          <MappableLocation :key="mapKey" :latlngs="latlngs" :logo=viewConfig.options?.map?.logo mapType="cluster"
+            height="80vh" width="100%" />
         </div>
-        <div v-show="latlngs.length > 0 && currentMapView === 'cluster'">
-          <MappableLocation :key="mapKey" :latlngs="latlngs" mapType="cluster" height="80vh" width="96%" />
+
+        <div v-show="journeyLatlngs.length > 0 && currentMapView === 'journey' && showJourneyMap">
+          <MappableLocation :key="mapKey" :latlngs="journeyLatlngs" :logo=viewConfig.options?.map?.logo mapType="journey"
+            height="80vh" width="100%" />
         </div>
-        <div v-show="dateLatlngs.length > 0 && currentMapView === 'timeline'">
-          <MappableLocation :key="mapKey" :latlngs="dateLatlngs" mapType="timeline" height="80vh" width="96%" />
+
+        <div v-show="dateLatlngs.length > 0 && currentMapView === 'timeline' && showTimelineMap">
+          <MappableLocation :key="mapKey" :latlngs="dateLatlngs" :logo=viewConfig.options?.map?.logo mapType="timeline"
+            height="80vh" width="100%" />
         </div>
       </div>
 
       <div v-show="viewConfig.options['list'] && currentView === 'list'" class="list-view">
-        <div v-show="currentListView === 'tile'" class="archive-list">
+        <div v-show="currentListView === 'tile'" class="archive-list mr-3">
           <template v-for="item of this.items" :key="item._id" class="mb-4">
             <SearchTile v-if="item._source" :id="item._source['@id']" :href="getSearchDetailUrl(item)"
               :name="first(item._source.name)?.['@value'] || first(first(item._source.identifier)?.value)?.['@value']"
@@ -180,7 +186,7 @@
           </template>
         </div>
 
-        <div v-show="currentListView === 'table'" class="table-list mb-6">
+        <div v-show="currentListView === 'table'" class="table-list mb-6 mr-3">
           <SearchTable :items="allItems" :properties="getViewProperties('list', 'table', 'properties')"
             :pageSize="getViewProperties('list', 'table', 'pageSize')" :allItem="allItems" />
         </div>
@@ -277,7 +283,7 @@ export default {
       currentMapView: '',
       mapKey: 0,
       totals: {},
-      pageSize: 36,
+      pageSize: 40,
       currentPage: 1,
       more: false,
       aggregations: {},
@@ -301,7 +307,6 @@ export default {
       searchFields: this.$store.state.configuration.ui.searchFields,
       sorting: [
         { value: 'relevance', label: 'Relevance' },
-        { value: '_isTopLevel.@value.keyword', label: 'Collections' },
         { value: 'name.@value.keyword', label: 'Title' },
         { value: 'inLanguage.name.@value.keyword', label: 'Language' },
       ],
@@ -319,8 +324,12 @@ export default {
       advancedQueries: null,
       resetAdvancedSearch: false,
       viewConfig: this.$store.state.configuration.ui.view,
+      publicPath: this.$store.state.configuration.ui.publicPath,
       csvHeader: {},
       csvConfig: this.$store.state.configuration.ui.csv,
+      showClusterMap: false,
+      showJourneyMap: false,
+      showTimelineMap: false,
     };
   },
   watch: {
@@ -612,8 +621,8 @@ export default {
     },
     async search() {
       this.loading = true;
-      if (this.isStart) { //Revert start to sorting by collections
-        this.selectedSorting = this.sorting[1].value; //collection
+      if (this.isStart) { //Revert start to sorting by revelence
+        this.selectedSorting = this.sorting[0].value; //revelence
         this.isStart = false;
       } else if (this.searchInput) { // If there is a query sort by relevance
         this.selectedSorting = this.defaultSorting.value;
@@ -657,6 +666,10 @@ export default {
     async searchAll() {
       this.loading = true;
       let order = this.selectedOrder.value ?? this.selectedOrder;
+      let findMapPin = false;
+      this.showClusterMap = false;
+      this.showJourneyMap = false;
+      this.showTimelineMap = false;
       try {
         let items = await this.$elasticService.multi({
           multi: this.searchInput,
@@ -672,6 +685,7 @@ export default {
         this.loading = false;
         this.latlngs = [];
         this.journeyLatlngs = [];
+        this.dateLatlngs = [];
         this.csvHeader = new Set();
         //TODO . use category for mapping
         let colorMap = this.viewConfig.options.map.color.map;
@@ -694,32 +708,62 @@ export default {
                 }
 
                 let color = colorMap['default'];
-
                 if (item['_source']['category']) {
                   if (colorMap[item['_source']['category'][0]['@id']]) {
                     color = colorMap[item['_source']['category'][0]['@id']];
                   }
                 }
-
                 let properties = {};
+                let url = null;
+
+                //Cluster map
                 if (item['_source']['_geolocation']) {
                   let geoCoordinates = item['_source']['_geolocation'][0][0][0];
                   if (geoCoordinates) {
+                    findMapPin = true;
+                    this.showClusterMap = true;
                     properties = this.getMapPinProperties(item['_source']);
+                    url = this.publicPath.slice(0, -1) + this.getSearchDetailUrl(item);
                     this.latlngs.push(
                       {
                         latitude: geoCoordinates['latitude'],
                         longitude: geoCoordinates['longitude'],
                         color: color,
-                        properties: properties
+                        properties: properties,
+                        url: url,
                       }
                     );
                   }
                 }
 
+                //journey map
                 if (item['_source']['_journeyGeolocation']) {
                   let journeyGeoLocation = item['_source']['_journeyGeolocation'][0];
                   if (journeyGeoLocation) {
+                    findMapPin = true;
+                    this.showJourneyMap = true;
+                    //Pop up properties for journey
+                    let journeyRoutes = readValue(item['_source'], 'journey').join(' - ');
+                    let journeyProperties = { 'Routes': journeyRoutes };
+                    for (let key in properties) {
+                      if (properties.hasOwnProperty(key)) {
+                        journeyProperties[key] = properties[key];
+                      }
+                    }
+
+                    //Construct journey place name map
+                    let journeyPlaceNameMap = {};
+                    if (item['_source']['journey']) {
+                      for (let i = 0; i < item['_source']['journey'].length; i++) {
+                        let journey = item['_source']['journey'][i];
+                        let geoId = journey?.['geo']?.[0]?.['@id'];
+                        let journetName = journey?.['name']?.[0]?.['@value'];
+                        if (geoId && journetName) {
+                          journeyPlaceNameMap[geoId] = journetName;
+                        }
+                      }
+                    }
+
                     let journeycoordinates = [];
                     for (let journeyGeo of journeyGeoLocation) {
                       journeycoordinates.push(
@@ -727,7 +771,9 @@ export default {
                           latitude: journeyGeo[0]['latitude'],
                           longitude: journeyGeo[0]['longitude'],
                           color: color,
-                          properties: properties
+                          properties: journeyProperties,
+                          url: url,
+                          name: journeyPlaceNameMap[journeyGeo[0]['@id']]
                         }
                       );
                     }
@@ -735,9 +781,12 @@ export default {
                   }
                 }
 
+                //timeline map
                 if (item['_source']['_dateGeolocation']) {
                   let dateGeoLocation = item['_source']['_dateGeolocation'][0][0][0];
                   if (dateGeoLocation) {
+                    findMapPin = true;
+                    this.showTimelineMap = true;
                     properties['datestart'] = dateGeoLocation['datestart'];
                     properties['dateend'] = dateGeoLocation['dateend'];
                     properties['udatestart'] = dateGeoLocation['udatestart'];
@@ -748,7 +797,8 @@ export default {
                         latitude: dateGeoLocation['latitude'],
                         longitude: dateGeoLocation['longitude'],
                         color: color,
-                        properties: properties
+                        properties: properties,
+                        url: url,
                       }
                     );
                   }
@@ -757,6 +807,16 @@ export default {
               }
             }
           };
+        }
+
+        if (!findMapPin) {
+          document.getElementById('radio-map').style.display = 'none';
+          this.switchView('list');
+        } else {
+          document.getElementById('radio-map').style.display = 'inline';
+          if (this.currentView === 'map') {
+            this.switchSubView('map', 'cluster');
+          }
         }
       } catch (e) {
         this.errorDialogVisible = true;
@@ -928,6 +988,16 @@ export default {
     getViewProperties(mainViewName, subViewName, proppertyName) {
       const viewOpiton = this.viewConfig.options[mainViewName]?.options.find(option => option.name === subViewName);
       return viewOpiton ? viewOpiton[proppertyName] : null;
+    },
+    shouldShowMapIcon(mapName) {
+      if (mapName == 'cluster') {
+        return this.showClusterMap;
+      } else if (mapName == 'journey') {
+        return this.showJourneyMap;
+      } else if (mapName == 'timeline') {
+        return this.showTimelineMap;
+      }
+      return false;
     }
   },
   computed: {
@@ -949,9 +1019,19 @@ html {
   flex-wrap: wrap;
   gap: 40px;
   margin-bottom: 2em;
-  justify-content: center;
+  justify-content: flex-start;
+  margin-left: 2%;
+}
+
+.table-list {
+  margin-left: 2%;
+}
+
+.map-view {
+  margin-left: 2%;
 }
 
 .active {
   background-color: lightskyblue;
-}</style>
+}
+</style>

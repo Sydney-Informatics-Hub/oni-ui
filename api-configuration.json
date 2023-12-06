@@ -351,12 +351,6 @@
                   "visible": true
                 },
                 {
-                  "name": "_memberOf",
-                  "display": "Details",
-                  "width": 100,
-                  "visible": true
-                },
-                {
                   "name": "currentHolder",
                   "display": "Current Holder",
                   "width": 200,
@@ -387,16 +381,16 @@
           "default": "cluster",
           "options": [
             {
-              "name": "journey",
-              "icon": "journey-map-view.svg",
-              "title": "Journey map View"
-            },
-            {
               "name": "cluster",
               "icon": "cluster-map-view.svg",
               "title": "Cluster map View"
             },
             {
+              "name": "journey",
+              "icon": "journey-map-view.svg",
+              "title": "Journey map View"
+            },
+          {
               "name": "timeline",
               "icon": "timeline-map-view.svg",
               "title": "TimeLine map View"
@@ -408,6 +402,7 @@
             "countryOfOrigin",
             "currentHolder"
           ],
+          "logo": "omaa-map-icon.svg",
           "color": {
             "field": "category",
             "map": {
