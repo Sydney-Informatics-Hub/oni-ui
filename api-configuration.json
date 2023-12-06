@@ -402,7 +402,6 @@
             "countryOfOrigin",
             "currentHolder"
           ],
-          "logo": "omaa-map-icon.svg",
           "color": {
             "field": "category",
             "map": {

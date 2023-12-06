@@ -10,10 +10,6 @@ export default {
   props: {
     latlngs: Array,
     mapType: String,
-    logo: {
-      type: [String, null],
-      default: null
-    },
     height: {
       type: String,
       default: '500px'
@@ -167,9 +163,9 @@ export default {
       },
     };
 
-    if (this.logo) {
-      GeoJSON.display.info.logo = require(`@/assets/${this.logo}`);
-    }
+
+    GeoJSON.display.info.logo =  'https://omaa-arts.sydney.edu.au/wp-content/themes/omaa/image/omaa_Icon.svg';
+    
     this.$nextTick(() => {
       const iframe = document.getElementById(this.id);
       const mapAPI = new TLCMapAPI(iframe);

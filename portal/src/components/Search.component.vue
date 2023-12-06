@@ -159,17 +159,17 @@
 
       <div v-if="viewConfig.options['map'] && currentView === 'map'" class="map-view mr-3">
         <div v-show="latlngs.length > 0 && currentMapView === 'cluster' && showClusterMap">
-          <MappableLocation :key="mapKey" :latlngs="latlngs" :logo=viewConfig.options?.map?.logo mapType="cluster"
+          <MappableLocation :key="mapKey" :latlngs="latlngs" mapType="cluster"
             height="80vh" width="100%" />
         </div>
 
         <div v-show="journeyLatlngs.length > 0 && currentMapView === 'journey' && showJourneyMap">
-          <MappableLocation :key="mapKey" :latlngs="journeyLatlngs" :logo=viewConfig.options?.map?.logo mapType="journey"
+          <MappableLocation :key="mapKey" :latlngs="journeyLatlngs" mapType="journey"
             height="80vh" width="100%" />
         </div>
 
         <div v-show="dateLatlngs.length > 0 && currentMapView === 'timeline' && showTimelineMap">
-          <MappableLocation :key="mapKey" :latlngs="dateLatlngs" :logo=viewConfig.options?.map?.logo mapType="timeline"
+          <MappableLocation :key="mapKey" :latlngs="dateLatlngs" mapType="timeline"
             height="80vh" width="100%" />
         </div>
       </div>
@@ -307,8 +307,8 @@ export default {
       searchFields: this.$store.state.configuration.ui.searchFields,
       sorting: [
         { value: 'relevance', label: 'Relevance' },
-        { value: 'name.@value.keyword', label: 'Title' },
-        { value: 'inLanguage.name.@value.keyword', label: 'Language' },
+        // { value: 'name.@value.keyword', label: 'Title' },
+        // { value: 'languageToSort.keyword', label: 'Language' },
       ],
       selectedSorting: null,
       defaultSorting: { value: 'relevance', label: 'Relevance' },
