@@ -24,7 +24,8 @@ How to make an OCFL repository:
 1. Install docker and docker-compose
 2. Verify your docker-compose points to the right ocfl repository
    1. Currently, using **Oni** version **1.6.0**
-3. Base `configuration.json` and `api-configuration.json` are provided, modify as you wish
+3. Base `configuration.json` and `api-configuration.json` are provided, modify as you wish, See the [Documentation](./portal/README.md) for more details on custom configuration
+
 4. Start an Oni
    1. `docker-compose up`
    2. Wait for oni to be ready

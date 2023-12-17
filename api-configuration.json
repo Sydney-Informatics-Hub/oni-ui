@@ -1,6 +1,6 @@
 {
   "ui": {
-    "siteName": "Oni??",
+    "siteName": "Oni",
     "siteNameX": "Discovery",
     "publicPath": "http://localhost:11000/",
     "title": "Oni Discovery Portal",
@@ -146,11 +146,22 @@
       "default": "new",
       "options": {
         "new": {
-          "icon": "new.svg",
-          "iframe": ["url"]
+          "icon": "tile-view.svg",
+          "iframe": ["url"],
+          "blockedField": [
+            "_root",
+            "_metadataLicense",
+            "_access",
+            "_metadataIsPublic",
+            "_crateId",
+            "_collectionStack",
+            "_subCollection",
+            "_mainCollection"
+          ],
+          "mainSection": ["text", "abstract", "description", "translation"]
         },
         "old": {
-          "icon": "old.svg"
+          "icon": "table-view.svg"
         }
       },
       "map": {
@@ -198,8 +209,7 @@
           "_metadataIsPublic",
           "_metadataLicense"
         ]
-      },
-      "iframe": ["url"]
+      }
     },
     "file": {
       "meta": {
@@ -390,7 +400,7 @@
               "icon": "journey-map-view.svg",
               "title": "Journey map View"
             },
-          {
+            {
               "name": "timeline",
               "icon": "timeline-map-view.svg",
               "title": "TimeLine map View"

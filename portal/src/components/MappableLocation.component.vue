@@ -164,8 +164,8 @@ export default {
     };
 
 
-    GeoJSON.display.info.logo =  'https://omaa-arts.sydney.edu.au/wp-content/themes/omaa/image/omaa_Icon.svg';
-    
+    GeoJSON.display.info.logo = 'https://omaa-arts.sydney.edu.au/wp-content/themes/omaa/image/omaa_Icon.svg';
+
     this.$nextTick(() => {
       const iframe = document.getElementById(this.id);
       const mapAPI = new TLCMapAPI(iframe);

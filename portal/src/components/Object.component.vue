@@ -4,8 +4,16 @@
 
       <div style="width: 98%;">
         <div class="flex justify-between">
-          <div class="text-4xl font-semibold p-5 pt-10 flex items-center" style="margin-left: 8.5%;">
-            <img v-if="icon" :src="require(`@/assets/${icon}`)" class="mr-1" style="height: 30px;">
+          <div class="text-4xl font-semibold p-5 pt-10 flex items-center w-full">
+
+            <div class="text-xl">
+              <a href="/search" class="no-underline">
+                <font-awesome-icon icon="fa fa-arrow-left" />
+                Back
+              </a>
+            </div>
+
+            <img v-if="icon" :src="require(`@/assets/${icon}`)" class="mr-1" style="height: 30px; margin-left: 5%;">
             {{ first(this.name)?.['@value'] }}
           </div>
           <div class="flex items-center" style="min-width: 50px;">
@@ -47,26 +55,15 @@
           </div>
         </div>
 
-        <el-row v-if="metadata.hasOwnProperty('abstract')" class="p-5"
-          style="margin-left: 3%; display:block; border-bottom: 2px #B91C1C;">
-          <h1 class="text-4xl font-medium dark:text-white" style="border-bottom: 2px solid #B91C1C;">Abstract</h1>
-          <p class="mt-4 text-lg">{{ readValue(metadata, 'abstract')[0] }}</p>
-        </el-row>
-
-        <el-row v-if="metadata.hasOwnProperty('description')" class="p-5" style="margin-left: 3%; display:block">
-          <h1 class="text-4xl font-medium dark:text-white" style="border-bottom: 2px solid #B91C1C;">Description</h1>
-          <p class="mt-4 text-lg">{{ readValue(metadata, 'description')[0] }}</p>
-        </el-row>
-
-        <el-row v-if="metadata.hasOwnProperty('translation')" class="p-5" style="margin-left: 3%; display:block">
-          <h1 class="text-4xl font-medium dark:text-white" style="border-bottom: 2px solid #B91C1C;">Translation</h1>
-          <p class="mt-4 text-lg">{{ readValue(metadata, 'translation')[0] }}</p>
-        </el-row>
-
-        <el-row v-if="metadata.hasOwnProperty('text')" class="p-5" style="margin-left: 3%; display:block">
-          <h1 class="text-4xl font-medium dark:text-white" style="border-bottom: 2px solid #B91C1C;">Text</h1>
-          <p class="mt-4 text-lg">{{ readValue(metadata, 'text')[0] }}</p>
-        </el-row>
+        <template v-for="key in mainSection">
+          <el-row v-if="metadata.hasOwnProperty(key)" class="p-5"
+            style="margin-left: 3%; display:block; border-bottom: 2px #B91C1C;">
+            <h1 class="text-4xl font-medium dark:text-white"
+              :style="{ 'border-bottom': '2px solid #B91C1C' }">{{ key.charAt(0).toUpperCase() +
+                key.slice(1) }}</h1>
+            <p class="mt-4 text-lg">{{ readValue(metadata, key)[0] }}</p>
+          </el-row>
+        </template>
       </div>
 
     </div>
@@ -81,15 +78,17 @@
         </h5>
 
         <div class="flex justify-end">
-        <el-row>
-          <div class="flex mr-3">
-            <img src="../assets/tile-view.svg" :class="{ 'active': currentView === 'new' }" @click="switchView('new')"
-              style="width: 40px; height: 40px; cursor: pointer;">
-            <img src="../assets/table-view.svg" :class="{ 'active': currentView === 'old' }" @click="switchView('old')"
-              style="width: 40px; height: 40px; cursor: pointer;">
-          </div>
-        </el-row>
-      </div>
+          <el-row>
+            <div class="flex mr-3">
+              <img v-if="config.options?.new?.icon" :src="require(`@/assets/${config.options.new.icon}`)"
+                :class="{ 'active': currentView === 'new' }" @click="switchView('new')"
+                style="width: 40px; height: 40px; cursor: pointer;">
+              <img v-if="config.options?.old.icon" :src="require(`@/assets/${config.options.old.icon}`)"
+                :class="{ 'active': currentView === 'old' }" @click="switchView('old')"
+                style="width: 40px; height: 40px; cursor: pointer;">
+            </div>
+          </el-row>
+        </div>
       </el-row>
     </div>
 
@@ -227,7 +226,8 @@ export default {
       tableData: [],
       showTableData: false,
       icon: null,
-      tableDataExclude: ['text', 'abstract', 'description', 'translation', '_root', '_metadataLicense', '_access', '_metadataIsPublic'],
+      mainSection: [],
+      tableDataExclude: [],
     }
   },
   async updated() {
@@ -292,7 +292,7 @@ export default {
       this.populateMeta(this.config.meta);
       this.populateLicense();
       this.populateParts();
-      this.populateTableData()
+      this.populateTableData();
     },
     populateName(config) {
       this.name = this.metadata[config.name];
@@ -373,10 +373,11 @@ export default {
       this.currentView = view;
     },
     populateTableData() {
+      this.tableDataExclude = this.config.options.new.blockedField;
+      this.mainSection = this.config.options.new.mainSection;
       this.tableData = [];
-
       Object.keys(this.metadata).forEach(key => {
-        if (!this.tableDataExclude.includes(key)) {
+        if (!this.tableDataExclude.includes(key) && !this.mainSection.includes(key)) {
           let value = readValue(this.metadata, key);
           if (value.length > 0) {
             this.tableData.push({ label: key, value: value });
@@ -416,5 +417,4 @@ export default {
 <style>
 .active {
   background-color: lightskyblue;
-}
-</style>
+}</style>

@@ -235,13 +235,11 @@ a {
   font-size: 1.2em;
 }
 
-/* Media Queries for different widths */
 
 @media (max-width: 2000px) {
   .text-tile {
     max-width: calc(25% - 30px);
     min-width: calc(25% - 30px);
-    /* 2 tiles per row */
   }
 }
 
@@ -249,7 +247,6 @@ a {
   .text-tile {
     max-width: calc(33.33% - 30px);
     min-width: calc(33.33% - 30px);
-    /* 2 tiles per row */
   }
 }
 
@@ -258,7 +255,6 @@ a {
   .text-tile {
     max-width: calc(50% - 30px);
     min-width: calc(50% - 30px);
-    /* 2 tiles per row */
   }
 }
 
@@ -266,6 +262,5 @@ a {
   .text-tile {
     max-width: calc(100% - 30px);
     min-width: calc(100% - 30px);
-    /* 1 tiles per row */
   }
 }</style>
