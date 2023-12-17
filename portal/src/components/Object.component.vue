@@ -18,9 +18,11 @@
           </div>
           <div class="flex items-center" style="min-width: 50px;">
             <div class="flex mr-3">
-              <img src="../assets/tile-view.svg" :class="{ 'active': currentView === 'new' }" @click="switchView('new')"
+              <img v-if="config.options?.new?.icon" :src="require(`@/assets/${config.options.new.icon}`)"
+                :class="{ 'active': currentView === 'new' }" @click="switchView('new')"
                 style="width: 40px; height: 40px; cursor: pointer;">
-              <img src="../assets/table-view.svg" :class="{ 'active': currentView === 'old' }" @click="switchView('old')"
+              <img v-if="config.options?.old.icon" :src="require(`@/assets/${config.options.old.icon}`)"
+                :class="{ 'active': currentView === 'old' }" @click="switchView('old')"
                 style="width: 40px; height: 40px; cursor: pointer;">
             </div>
           </div>
@@ -58,9 +60,9 @@
         <template v-for="key in mainSection">
           <el-row v-if="metadata.hasOwnProperty(key)" class="p-5"
             style="margin-left: 3%; display:block; border-bottom: 2px #B91C1C;">
-            <h1 class="text-4xl font-medium dark:text-white"
-              :style="{ 'border-bottom': '2px solid #B91C1C' }">{{ key.charAt(0).toUpperCase() +
-                key.slice(1) }}</h1>
+            <h1 class="text-4xl font-medium dark:text-white" :style="{ 'border-bottom': '2px solid #B91C1C' }">{{
+              key.charAt(0).toUpperCase() +
+              key.slice(1) }}</h1>
             <p class="mt-4 text-lg">{{ readValue(metadata, key)[0] }}</p>
           </el-row>
         </template>
@@ -417,4 +419,5 @@ export default {
 <style>
 .active {
   background-color: lightskyblue;
-}</style>
+}
+</style>
