@@ -33,9 +33,8 @@ import { registerLicense } from '@syncfusion/ej2-base';
 
 (async () => {
   
-  registerLicense('Ngo9BigBOggjHTQxAR8/V1NHaF1cWWhIfEx0Rnxbf1xzZFZMZV5bRXJPIiBoS35RdURiW3xfdXFXR2RUWExy');
-  // registerLicense('Ngo9BigBOggjHTQxAR8/V1NHaF1cWWhIfExzWmFZfV1gdV9EaFZSQmY/P1ZhSXxQd0RhUX5dcnxWQGVaVUc=');
-  
+  registerLicense('Ngo9BigBOggjHTQxAR8/V1NHaF5cWWdCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdgWH1cd3RUQmhdWUFyWUU=');
+
   const app = createApp(App);
   app.use(store);
   app.use(router);
