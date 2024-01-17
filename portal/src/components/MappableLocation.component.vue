@@ -28,13 +28,13 @@ export default {
   mounted() {
 
     if (this.mapType == 'journey') {
-      this.mapSrc = "https://test-views.tlcmap.org/api/journey.html"
+      this.mapSrc = "https://views.tlcmap.org/api/journey.html"
       this.id = "journey-map";
     } else if (this.mapType == 'cluster') {
-      this.mapSrc = "https://test-views.tlcmap.org/api/cluster.html"
+      this.mapSrc = "https://views.tlcmap.org/api/cluster.html"
       this.id = "cluster-map";
     } else if (this.mapType == 'timeline') {
-      this.mapSrc = "https://test-views.tlcmap.org/api/timeline.html"
+      this.mapSrc = "https://views.tlcmap.org/api/timeline.html"
       this.id = "timeline-map";
     }
 
